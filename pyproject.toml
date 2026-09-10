@@ -37,7 +37,9 @@ dependencies = [
     "trimesh>=4.11.3",
     "typer>=0.12.0",
     # 26.8 fails to publish the temporary USDZ on macOS arm64.
-    "usd-core>=26.5,<26.8",
+    # No aarch64 Linux wheel or sdist exists on PyPI; there OpenUSD comes from
+    # conda-forge's `openusd`, which provides the same pxr package.
+    "usd-core>=26.5,<26.8; platform_machine != 'aarch64'",
     "websockets>=15.0.0",
     "xatlas>=0.0.11",
 ]
