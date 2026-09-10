@@ -1,0 +1,16 @@
+file     dresser-current-harness-thinking-off/result/usdz/0010.usdz
+record   status=success  terminate_reason=max_turns_last_clean
+joints   9  prismatic 9
+ask      min 9, required {'prismatic': 9}  ->  PASS
+  slide_0_0              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_0_1              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_0_2              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_1_0              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_1_1              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_1_2              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_2_0              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_2_1              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+  slide_2_2              world axis (+0.00,+0.00,+1.00)  NOT horizontal  does NOT move out
+axis     0/9 prismatic axes horizontal  ->  FAIL
+out      0/9 move away from their parent  ->  FAIL
+RESULT   FAIL

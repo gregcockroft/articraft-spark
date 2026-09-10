@@ -1,0 +1,19 @@
+articraft-spark
+Copyright 2026 Greg Cockroft
+
+This is a modified version of Articraft (https://github.com/articraftresearch/Articraft),
+Copyright its authors, licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Modifications, all under the same license:
+- pyproject.toml: OpenUSD from conda-forge on aarch64 Linux.
+- src/articraft/agent/provider/openrouter.py, src/articraft/settings.py, src/articraft/api.py,
+  src/articraft/app.py, .env.example, docs/providers.md: drive a local OpenAI-compatible server
+  (base URL, optional key, image input, output cap, chat-template arguments, image pruning).
+- src/articraft/agent/harness.py, src/articraft/agent/record.py: keep the last clean compile when a
+  run reaches its turn limit.
+- tests/: tests for the above.
+- spark/: new; install, serve, demo, scoring and rendering scripts for an NVIDIA DGX Spark.
+- README.md: new. Articraft's own README is preserved as ARTICRAFT.md.
+
+The model weights are not part of this repository. RedHatAI/Qwen3.6-35B-A3B-NVFP4 is downloaded from
+Hugging Face under its own license.

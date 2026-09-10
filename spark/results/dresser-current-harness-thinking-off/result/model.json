@@ -1,0 +1,6254 @@
+{
+  "schema_version": 2,
+  "name": "chest_of_drawers",
+  "units": "meters",
+  "meters_per_unit": 1.0,
+  "up_axis": "Z",
+  "scene": {
+    "gravity_direction": [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    "gravity_magnitude": 9.81
+  },
+  "rigid_bodies": [
+    {
+      "name": "carcass",
+      "mass": {
+        "kilograms": 34.080146,
+        "materials": [
+          "hardwood"
+        ],
+        "density": null,
+        "center_of_mass": [
+          0.087341,
+          0.083634,
+          0.015971
+        ],
+        "diagonal_inertia": [
+          5.581262925,
+          6.857967786,
+          7.350230055
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "left_side",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "right_side",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "top_panel",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom_panel",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back_panel",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "divider_1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "divider_2",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "rail_row_0",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "rail_row_1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "rail_row_2",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "foot_-1_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "foot_-1_1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "foot_1_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "foot_1_1",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_0_0",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          -0.396,
+          0.030349,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947913,
+          0.274547562,
+          0.335733082
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_0_1",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          -0.396,
+          0.301015,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947913,
+          0.274547579,
+          0.335733098
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_0_2",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          -0.396,
+          0.571682,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947928,
+          0.274547594,
+          0.335733118
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_1_0",
+      "mass": {
+        "kilograms": 4.061332,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          -0.0,
+          0.030349,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947851,
+          0.27454753,
+          0.335733008
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_1_1",
+      "mass": {
+        "kilograms": 4.061332,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          -0.0,
+          0.301015,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947851,
+          0.274547546,
+          0.335733024
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_1_2",
+      "mass": {
+        "kilograms": 4.061332,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          0.0,
+          0.571682,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947866,
+          0.274547562,
+          0.335733044
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_2_0",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          0.396,
+          0.030349,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947913,
+          0.274547562,
+          0.335733082
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_2_1",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          0.396,
+          0.301015,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947913,
+          0.274547579,
+          0.335733098
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    },
+    {
+      "name": "drawer_2_2",
+      "mass": {
+        "kilograms": 4.061333,
+        "materials": [
+          "hardwood",
+          "steel"
+        ],
+        "density": null,
+        "center_of_mass": [
+          0.396,
+          0.571682,
+          -0.059639
+        ],
+        "diagonal_inertia": [
+          0.108947928,
+          0.274547594,
+          0.335733118
+        ]
+      },
+      "body_state": {
+        "enabled": true,
+        "kinematic": false,
+        "linear_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "angular_velocity": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "starts_asleep": false
+      },
+      "shapes": [
+        {
+          "name": "front",
+          "geometry_type": "Box",
+          "color": [
+            0.96,
+            0.95,
+            0.92,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_0",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_1",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_2",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_3",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_4",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_5",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "groove_6",
+          "geometry_type": "Box",
+          "color": [
+            0.88,
+            0.86,
+            0.83,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bottom",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_-1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "side_1",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "back",
+          "geometry_type": "Box",
+          "color": [
+            0.72,
+            0.56,
+            0.38,
+            1.0
+          ],
+          "material": {
+            "name": "hardwood",
+            "library": true,
+            "density": 700.0,
+            "friction": [
+              0.5,
+              0.4
+            ],
+            "restitution": 0.35,
+            "base_color": [
+              0.62,
+              0.45,
+              0.24,
+              1.0
+            ],
+            "metallic": 0.0,
+            "roughness": 0.75,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "handle",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_0",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_1",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_2",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        },
+        {
+          "name": "bracket_3",
+          "geometry_type": "Box",
+          "color": [
+            0.78,
+            0.62,
+            0.35,
+            1.0
+          ],
+          "material": {
+            "name": "steel",
+            "library": true,
+            "density": 7850.0,
+            "friction": [
+              0.42,
+              0.36
+            ],
+            "restitution": 0.55,
+            "base_color": [
+              0.72,
+              0.73,
+              0.76,
+              1.0
+            ],
+            "metallic": 1.0,
+            "roughness": 0.35,
+            "opacity": 1.0,
+            "emissive": null
+          },
+          "coating": null
+        }
+      ]
+    }
+  ],
+  "joints": [
+    {
+      "name": "slide_0_0",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_0_0",
+      "frame0": {
+        "xyz": [
+          -0.396,
+          0.18883333333333333,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -0.396,
+          0.18883333333333333,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_0_1",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_0_1",
+      "frame0": {
+        "xyz": [
+          -0.396,
+          0.4595,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -0.396,
+          0.4595,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_0_2",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_0_2",
+      "frame0": {
+        "xyz": [
+          -0.396,
+          0.7301666666666667,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -0.396,
+          0.7301666666666667,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_1_0",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_1_0",
+      "frame0": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.18883333333333333,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.18883333333333333,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_1_1",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_1_1",
+      "frame0": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.4595,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.4595,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_1_2",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_1_2",
+      "frame0": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.7301666666666667,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          -5.551115123125783e-17,
+          0.7301666666666667,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_2_0",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_2_0",
+      "frame0": {
+        "xyz": [
+          0.3959999999999999,
+          0.18883333333333333,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          0.3959999999999999,
+          0.18883333333333333,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_2_1",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_2_1",
+      "frame0": {
+        "xyz": [
+          0.3959999999999999,
+          0.4595,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          0.3959999999999999,
+          0.4595,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    },
+    {
+      "name": "slide_2_2",
+      "type": "prismatic",
+      "body0": "carcass",
+      "body1": "drawer_2_2",
+      "frame0": {
+        "xyz": [
+          0.3959999999999999,
+          0.7301666666666667,
+          0.21
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "frame1": {
+        "xyz": [
+          0.3959999999999999,
+          0.7301666666666667,
+          0.225
+        ],
+        "rpy": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      "dofs": [
+        {
+          "axis": "transZ",
+          "limits": [
+            -0.05,
+            0.25
+          ]
+        }
+      ],
+      "articulation": "drawers",
+      "exclude_from_articulation": false
+    }
+  ],
+  "articulations": [
+    {
+      "name": "drawers",
+      "root": {
+        "type": "rigid_body",
+        "name": "carcass"
+      },
+      "joints": [
+        "slide_0_0",
+        "slide_0_1",
+        "slide_0_2",
+        "slide_1_0",
+        "slide_1_1",
+        "slide_1_2",
+        "slide_2_0",
+        "slide_2_1",
+        "slide_2_2"
+      ],
+      "rigid_bodies": [
+        "carcass",
+        "drawer_0_0",
+        "drawer_0_1",
+        "drawer_0_2",
+        "drawer_1_0",
+        "drawer_1_1",
+        "drawer_1_2",
+        "drawer_2_0",
+        "drawer_2_1",
+        "drawer_2_2"
+      ]
+    }
+  ],
+  "reference_state": {
+    "body_poses": {
+      "carcass": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_0_0": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_0_1": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_0_2": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_1_0": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_1_1": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_1_2": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_2_0": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_2_1": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "drawer_2_2": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          -0.015000000000000013
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ]
+    },
+    "dof_positions": {
+      "slide_0_0.transZ": 0.0,
+      "slide_0_1.transZ": 0.0,
+      "slide_0_2.transZ": 0.0,
+      "slide_1_0.transZ": 0.0,
+      "slide_1_1.transZ": 0.0,
+      "slide_1_2.transZ": 0.0,
+      "slide_2_0.transZ": 0.0,
+      "slide_2_1.transZ": 0.0,
+      "slide_2_2.transZ": 0.0
+    }
+  },
+  "files": {
+    "usdz": "usdz/0010.usdz"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "slug": "dresser",
+  "label": "proc_dresser_draw1",
+  "prompt": "Recreate the chest of drawers shown in the reference photo. It has nine drawers in a three-by-three grid, each with its own handle, standing on four short feet.",
+  "prompt_sha256": "bcd8c127cb630a0389d8fd53a0a5dde55b3d3b8f4b6e0438add789f06ad35bba",
+  "model": "RedHatAI/Qwen3.6-35B-A3B-NVFP4",
+  "turns": 65,
+  "wall_seconds": 3019.0,
+  "articraft_commit": "959f1455091fc8f86a489ee8cab38f686916099f",
+  "built_at": "2026-09-05T22:13:24Z",
+  "note": "",
+  "links": 10,
+  "joints": 9,
+  "joint_kinds": {
+    "slide": 9
+  },
+  "diagnostics": []
+}
