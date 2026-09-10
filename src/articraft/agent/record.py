@@ -13,6 +13,7 @@ class Record:
     attempts: int = 0
     error: str = ""
     result: str = ""
+    terminate_reason: str = ""
     cost: float = 0.0
     token_usage: dict[str, int] = field(default_factory=dict)
 

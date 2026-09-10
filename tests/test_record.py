@@ -20,6 +20,7 @@ def test_record_saves_slim_run_summary(tmp_path) -> None:
         "attempts",
         "error",
         "result",
+        "terminate_reason",
         "cost",
         "token_usage",
     }

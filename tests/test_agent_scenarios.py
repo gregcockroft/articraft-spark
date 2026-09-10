@@ -356,6 +356,25 @@ def test_event_stream_is_ordered_and_complete(tmp_path: Path) -> None:
 
 
 def test_agent_hitting_max_turns_is_a_terminal_error(tmp_path: Path) -> None:
+    """A run that never compiled clean has built nothing, so max turns stays an error."""
+    artifacts = run_scenario(
+        "a box",
+        [write_main(GOOD_MAIN_PY), write_main(GOOD_MAIN_PY)],
+        env=WarmEnvironment(output_dir=tmp_path),
+        max_turns=2,
+    )
+
+    assert artifacts.record.status == "error"
+    assert artifacts.record.error == "agent hit max turns limit"
+    assert artifacts.record.terminate_reason == "max_turns"
+    assert artifacts.record.result == ""
+    finished = artifacts.recorder.finished
+    assert finished is not None
+    assert finished.turns == 2
+
+
+def test_agent_hitting_max_turns_returns_the_last_clean_revision(tmp_path: Path) -> None:
+    """C2: a run that compiled clean and then ran out of turns keeps what it built."""
     artifacts = run_scenario(
         "a box",
         [write_main(GOOD_MAIN_PY), compile_workspace()],
@@ -363,11 +382,10 @@ def test_agent_hitting_max_turns_is_a_terminal_error(tmp_path: Path) -> None:
         max_turns=2,
     )
 
-    assert artifacts.record.status == "error"
-    assert artifacts.record.error == "agent hit max turns limit"
-    finished = artifacts.recorder.finished
-    assert finished is not None
-    assert finished.turns == 2
+    assert artifacts.record.status == "success"
+    assert artifacts.record.terminate_reason == "max_turns_last_clean"
+    assert artifacts.record.result.endswith(".usdz")
+    assert artifacts.record.error == ""
 
 
 def test_script_exhaustion_surfaces_as_a_model_failure(tmp_path: Path) -> None:

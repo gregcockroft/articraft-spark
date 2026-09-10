@@ -312,10 +312,23 @@ class Agent:
             record.status = "error"
             record.error = termination_error
             record.result = ""
+            record.terminate_reason = "error"
         elif hit_max_turns:
-            record.status = "error"
-            record.error = "agent hit max turns limit"
-            record.result = ""
+            # C2: a run that compiled clean and then wandered still built something.
+            # Returning the last revision that compiled clean keeps the evidence
+            # instead of discarding it, and terminate_reason keeps it honest -- a
+            # scorer can still tell this from a run that ended cleanly on its own.
+            salvaged = _last_clean_result(run_dir, context)
+            if salvaged:
+                record.status = "success"
+                record.error = ""
+                record.result = salvaged
+                record.terminate_reason = "max_turns_last_clean"
+            else:
+                record.status = "error"
+                record.error = "agent hit max turns limit"
+                record.result = ""
+                record.terminate_reason = "max_turns"
         elif final_text and workspace_is_compiled:
             try:
                 result_path = _result_path(run_dir, context.successful_compile_result)
@@ -328,6 +341,7 @@ class Agent:
                     record.status = "success"
                     record.error = ""
                     record.result = result_path
+                    record.terminate_reason = "final_response"
                 else:
                     record.status = "error"
                     record.error = "fresh compile did not produce a USDZ result"
@@ -611,6 +625,20 @@ def _append_reminder(messages: list[dict[str, Any]], path: Path, content: str) -
     reminder = {"role": "user", "content": content}
     messages.append(reminder)
     append_conversation(path, reminder)
+
+
+def _last_clean_result(run_dir: Path, context: ToolContext) -> str:
+    """Return the USDZ of the last revision that compiled clean, if one is still on disk."""
+    result = context.successful_compile_result
+    if result is None:
+        return ""
+    try:
+        path = _result_path(run_dir, result)
+    except ValueError:
+        return ""
+    if path and run_dir.joinpath(path).is_file():
+        return path
+    return ""
 
 
 def _result_path(run_dir: Path, compile_result: Mapping[str, Any] | None) -> str:
