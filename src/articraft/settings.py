@@ -133,6 +133,20 @@ class Settings(BaseSettings):
         ge=1,
         validation_alias="ARTICRAFT_OPENROUTER_SUMMARY_MAX_OUTPUT_TOKENS",
     )
+    openrouter_max_output_tokens: int = Field(
+        default=0,
+        ge=0,
+        validation_alias="ARTICRAFT_OPENROUTER_MAX_OUTPUT_TOKENS",
+    )
+    openrouter_chat_template_kwargs: str = Field(
+        default="",
+        validation_alias="ARTICRAFT_OPENROUTER_CHAT_TEMPLATE_KWARGS",
+    )
+    openrouter_max_images: int = Field(
+        default=0,
+        ge=0,
+        validation_alias="ARTICRAFT_OPENROUTER_MAX_IMAGES",
+    )
 
     @field_validator("openrouter_context_window_tokens")
     @classmethod

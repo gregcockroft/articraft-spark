@@ -296,3 +296,194 @@ def test_preflight_still_demands_a_model() -> None:
         provider="openrouter", openrouter_base_url=LOCAL_BASE_URL, openrouter_model=" "
     )
     assert _missing_provider_settings(settings) == ["ARTICRAFT_OPENROUTER_MODEL or --model"]
+
+
+def reasoning_only_response() -> dict[str, Any]:
+    """What vLLM returns when a turn produced thinking and nothing else."""
+    return {
+        "id": "gen-local",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "",
+                    "tool_calls": [],
+                    "reasoning": "Let me think about the drawer slides before I write anything.",
+                },
+                "finish_reason": "stop",
+            }
+        ],
+    }
+
+
+def test_reasoning_only_turn_is_empty_not_fatal() -> None:
+    """It must not raise: the agent loop has its own empty-response handling."""
+    model, _ = local_model([reasoning_only_response()])
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert result["text"] == ""
+    assert result["tool_calls"] == []
+    assert result["provider_content"] == [
+        {
+            "type": "openrouter_reasoning",
+            "reasoning": "Let me think about the drawer slides before I write anything.",
+        }
+    ]
+
+
+def test_reasoning_is_not_promoted_into_text() -> None:
+    """Promoting it would let thinking end the run as if it were the final answer."""
+    model, _ = local_model([reasoning_only_response()])
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert "drawer slides" not in result["text"]
+
+
+def test_a_truly_empty_response_still_raises() -> None:
+    model, _ = local_model(
+        [
+            {
+                "id": "gen-local",
+                "choices": [
+                    {
+                        "index": 0,
+                        "message": {"role": "assistant", "content": "", "tool_calls": []},
+                        "finish_reason": "stop",
+                    }
+                ],
+            }
+        ]
+    )
+
+    with pytest.raises(ModelError, match="did not contain text or tool calls"):
+        run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+
+def test_generation_sends_no_max_tokens_by_default() -> None:
+    """Unset keeps the upstream behaviour: the hosted model bounds its own reply."""
+    model, requests = local_model([text_response()])
+
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert "max_tokens" not in request_json(requests[0])
+
+
+def test_generation_caps_output_when_configured() -> None:
+    """A self-hosted server bounds nothing, so one turn can run to the context ceiling."""
+    model, requests = local_model([text_response()], openrouter_max_output_tokens=32_768)
+
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert request_json(requests[0])["max_tokens"] == 32_768
+
+
+def test_chat_template_kwargs_are_sent_when_configured() -> None:
+    """vLLM applies the model's own chat template; Qwen3 thinking is switched there."""
+    model, requests = local_model(
+        [text_response()],
+        openrouter_chat_template_kwargs='{"enable_thinking": false}',
+    )
+
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert request_json(requests[0])["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+def test_no_chat_template_kwargs_by_default() -> None:
+    model, requests = local_model([text_response()])
+
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert "chat_template_kwargs" not in request_json(requests[0])
+
+
+def test_malformed_chat_template_kwargs_is_a_clear_error() -> None:
+    model, _ = local_model([text_response()], openrouter_chat_template_kwargs="not json")
+
+    with pytest.raises(ModelError, match="must be a JSON object"):
+        run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+
+def _image_message(tag: str) -> dict[str, Any]:
+    return {
+        "role": "user",
+        "content": [
+            {"type": "input_text", "text": tag},
+            {"type": "input_image", "image_url": f"{DATA_URL}#{tag}", "detail": "high"},
+        ],
+    }
+
+
+def test_images_are_not_pruned_by_default() -> None:
+    model, requests = local_model([text_response()], openrouter_supports_images=True)
+
+    run(model.query([_image_message(f"i{n}") for n in range(6)]))
+
+    parts = [
+        item
+        for message in request_json(requests[0])["messages"]
+        for item in message["content"]
+        if item.get("type") == "image_url"
+    ]
+    assert len(parts) == 6
+
+
+def test_pruning_keeps_the_reference_and_the_most_recent() -> None:
+    """The oldest image is the reference being reconstructed - never drop it first."""
+    model, requests = local_model(
+        [text_response()],
+        openrouter_supports_images=True,
+        openrouter_max_images=3,
+    )
+
+    run(model.query([_image_message(f"i{n}") for n in range(6)]))
+
+    urls = [
+        item["image_url"]["url"]
+        for message in request_json(requests[0])["messages"]
+        for item in message["content"]
+        if item.get("type") == "image_url"
+    ]
+    assert len(urls) == 3
+    assert urls[0].endswith("#i0"), "the reference image must survive"
+    assert urls[1].endswith("#i4")
+    assert urls[2].endswith("#i5")
+
+
+def test_pruned_images_leave_a_note_the_model_can_act_on() -> None:
+    model, requests = local_model(
+        [text_response()],
+        openrouter_supports_images=True,
+        openrouter_max_images=2,
+    )
+
+    run(model.query([_image_message(f"i{n}") for n in range(5)]))
+
+    texts = [
+        item["text"]
+        for message in request_json(requests[0])["messages"]
+        for item in message["content"]
+        if item.get("type") == "text"
+    ]
+    assert any("view_image it again" in t for t in texts)
+
+
+def test_pruning_is_a_no_op_below_the_limit() -> None:
+    model, requests = local_model(
+        [text_response()],
+        openrouter_supports_images=True,
+        openrouter_max_images=8,
+    )
+
+    run(model.query([_image_message(f"i{n}") for n in range(3)]))
+
+    urls = [
+        item["image_url"]["url"]
+        for message in request_json(requests[0])["messages"]
+        for item in message["content"]
+        if item.get("type") == "image_url"
+    ]
+    assert len(urls) == 3

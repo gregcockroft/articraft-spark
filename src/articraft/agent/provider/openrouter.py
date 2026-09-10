@@ -15,6 +15,10 @@ from articraft.settings import Settings, get_settings
 
 _OPENROUTER_HOST = "openrouter.ai"
 _TOOL_IMAGE_TEXT = "Image returned by the preceding tool call."
+_DROPPED_IMAGE_TEXT = (
+    "[an earlier image was dropped from this conversation to stay within the "
+    "endpoint's per-prompt image limit; view_image it again if you still need it]"
+)
 _RETRY_BASE_SECONDS = 0.5
 _RETRY_MAX_SECONDS = 20.0
 logger = logging.getLogger(__name__)
@@ -56,8 +60,20 @@ class OpenRouterModel:
         """Query OpenRouter and return the response shape used by the agent."""
         request: dict[str, Any] = {
             "model": self.config.openrouter_model,
-            "messages": _messages(messages, images=self.supports_images),
+            "messages": _messages(
+                messages,
+                images=self.supports_images,
+                max_images=self.config.openrouter_max_images,
+            ),
         }
+        # A hosted model bounds its own reply. A self-hosted server does not, so an
+        # uncapped turn can generate until the context ceiling; 0 keeps the old
+        # unbounded behaviour.
+        if self.config.openrouter_max_output_tokens:
+            request["max_tokens"] = self.config.openrouter_max_output_tokens
+        template_kwargs = _chat_template_kwargs(self.config)
+        if template_kwargs:
+            request["chat_template_kwargs"] = template_kwargs
         converted_tools = _tools(tools or [])
         if converted_tools:
             request["tools"] = converted_tools
@@ -66,8 +82,14 @@ class OpenRouterModel:
         payload = _response_payload(response)
         _raise_for_provider_error(response.status_code, payload)
         text, tool_calls, provider_content = _assistant_output(payload)
-        if not text and not tool_calls:
+        if not text and not tool_calls and not provider_content:
             raise ModelError("OpenRouter response did not contain text or tool calls")
+        # A reasoning-only turn is a real thing for a model served with a reasoning
+        # parser: the visible content is empty while `reasoning` holds the thinking.
+        # That is an empty turn, not a transport error, so it is returned as one and
+        # the agent loop's own empty-response handling gets to nudge the model. The
+        # reasoning is NOT promoted into `text`: the loop treats a turn with text and
+        # a compiled workspace as the final answer, and thinking is not an answer.
 
         return {
             "text": text,
@@ -87,7 +109,11 @@ class OpenRouterModel:
         """Create a plain checkpoint with one completion call and no tools."""
         request: dict[str, Any] = {
             "model": self.config.openrouter_model,
-            "messages": _messages(messages, images=self.supports_images),
+            "messages": _messages(
+                messages,
+                images=self.supports_images,
+                max_images=self.config.openrouter_max_images,
+            ),
             "max_tokens": min(
                 max_output_tokens,
                 self.config.openrouter_summary_max_output_tokens,
@@ -196,7 +222,49 @@ class OpenRouterModel:
         return headers
 
 
-def _messages(messages: list[dict[str, Any]], *, images: bool = False) -> list[dict[str, Any]]:
+def _messages(
+    messages: list[dict[str, Any]],
+    *,
+    images: bool = False,
+    max_images: int = 0,
+) -> list[dict[str, Any]]:
+    converted = _convert_messages(messages, images=images)
+    if max_images:
+        _prune_images(converted, max_images)
+    return converted
+
+
+def _prune_images(converted: list[dict[str, Any]], keep: int) -> None:
+    """Drop the middle of the image history, keeping the first and the most recent.
+
+    Images accumulate and are never removed, so any server-side per-prompt cap is
+    eventually exhausted and the request fails outright, killing the run. The FIRST
+    image is the reference the run is reconstructing and is the last thing worth
+    dropping, so it is kept and the oldest *subsequent* images go first.
+    """
+    positions = [
+        (index, item_index)
+        for index, message in enumerate(converted)
+        if isinstance(message.get("content"), list)
+        for item_index, item in enumerate(message["content"])
+        if isinstance(item, dict) and item.get("type") == "image_url"
+    ]
+    if len(positions) <= keep:
+        return
+
+    survivors = (
+        positions[:1] + positions[len(positions) - (keep - 1) :] if keep > 1 else positions[:1]
+    )
+    for index, item_index in positions:
+        if (index, item_index) in survivors:
+            continue
+        converted[index]["content"][item_index] = {
+            "type": "text",
+            "text": _DROPPED_IMAGE_TEXT,
+        }
+
+
+def _convert_messages(messages: list[dict[str, Any]], *, images: bool) -> list[dict[str, Any]]:
     converted: list[dict[str, Any]] = []
     for message in messages:
         if message.get("type") == "function_call_output":
@@ -512,6 +580,28 @@ def _chat_completions_url(base_url: str) -> str:
     if base.endswith("/chat/completions"):
         return base
     return f"{base}/chat/completions"
+
+
+def _chat_template_kwargs(settings: Settings) -> dict[str, Any]:
+    """Parse the server-side chat-template arguments, if any were configured.
+
+    A self-hosted server applies the model's own chat template, and some templates
+    take arguments the OpenAI schema has no field for -- Qwen3's `enable_thinking`
+    being the one that matters here. vLLM reads them from `chat_template_kwargs`.
+    """
+    raw = (settings.openrouter_chat_template_kwargs or "").strip()
+    if not raw:
+        return {}
+    try:
+        parsed = json.loads(raw)
+    except ValueError as exc:
+        raise ModelError(
+            "ARTICRAFT_OPENROUTER_CHAT_TEMPLATE_KWARGS must be a JSON object: "
+            f"{_format_exception(exc)}"
+        ) from exc
+    if not isinstance(parsed, dict):
+        raise ModelError("ARTICRAFT_OPENROUTER_CHAT_TEMPLATE_KWARGS must be a JSON object")
+    return parsed
 
 
 def requires_api_key(settings: Settings) -> bool:
