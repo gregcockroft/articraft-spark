@@ -11,10 +11,15 @@ frontier API behind that loop. This fork runs the same loop against a model serv
 mixture-of-experts with 3B active parameters, quantized to NVFP4 for Blackwell and served by vLLM on the
 GB10.
 
-<!-- HERO: replaced at the 21:30 checkpoint if the current-harness thinking-on run holds together (see "Results") -->
 ![A nine-drawer chest built by Qwen3.6 on a DGX Spark from one photo, its drawers opening one after another](spark/results/dresser-pinned-harness-thinking-on/dresser.gif)
 
 *Built by the local Qwen3.6 on the Spark from the photo and prompt in `spark/bench/dresser/`, on the earlier Articraft codebase (see Results).*
+
+**Where it stands.** The whole loop runs on the Spark against current Articraft: the local model reads the
+photo, writes the CAD program, compiles it and exports a USDZ with the right joint types. On the earlier
+Articraft codebase the same model built the coherent chest above. On current Articraft it does not yet: with
+thinking off its parts do not fit together, and with thinking on it deliberates without acting. Both are
+measured below, and `spark/score.py` exists so a joint count cannot hide the first.
 
 ## Run it
 
@@ -64,9 +69,12 @@ horizontal and opening it has to move it out of the carcass, not through it.
 |---|---|---|---|---|---|---|
 | [earlier Articraft](spark/results/dresser-pinned-harness-thinking-on/) | `mattzh72/articraft` `959f1455` | on | 65, finished on its own | 50 min | 9 prismatic, met | **pass**: 9/9 horizontal, 9/9 open outward |
 | [current, thinking off](spark/results/dresser-current-harness-thinking-off/) | this fork | off | 100, salvaged | 27 min | 9 prismatic, met | **fail**: 0/9 horizontal |
-| current, thinking on | this fork | on | *running* | | | |
+| current, thinking on | this fork | on | 4, stopped by the harness | 36 min | never compiled | none |
 
-<!-- S7: the third row is filled at the 21:30 checkpoint from trials S7, whatever it shows -->
+With thinking on, the current harness never reached a compile. Turns 2, 3 and 4 each reasoned for the full
+32,768-token cap without calling a tool, each starting over from the photo and writing the program inside its
+thinking, and after three empty turns in a row the harness stopped the run. On the earlier codebase, with the
+same model, thinking setting and cap, the largest single generation was 18,806 tokens and the model acted.
 
 All five bench objects with thinking off, for scale: four produced an artifact, three met their joint
 ask, the arm never compiled clean, and none is a coherent object.
@@ -103,8 +111,10 @@ flowchart LR
 
 ## Limits
 
-- **Thinking is a trade.** Off, the model is quick and the geometry does not hold together. On, a single
-  turn can reason for the full 32k-token cap without calling a tool, at ten minutes or more a turn.
+- **Thinking is a trade, and on current Articraft neither side works yet.** Off, the model is quick and the
+  geometry does not hold together. On, it reasoned to the 32k-token cap three turns running without acting.
+  vLLM's `thinking_token_budget` would cap the thinking rather than the turn; on this server (MTP-2) it is
+  accepted and has no effect.
 - **On the current harness the model does not stop on its own.** Every run there so far ended at the
   turn limit, and the last clean revision is what ships. (On the earlier codebase the dresser stopped
   by itself at turn 65; a second draw ran out of turns.)
