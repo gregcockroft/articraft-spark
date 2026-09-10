@@ -8,7 +8,8 @@ The same frozen prompt and reference photo, run on 2026-09-05 through the earlie
 That harness wrote URDF with box and cylinder primitives rather than USDZ, so `score.txt` comes from
 `spark/render/urdf2obj.py model.urdf`, which applies the same two checks as `spark/score.py`: all nine
 slide axes horizontal (+Y), all nine drawers move out of the carcass. `sheet.png` is rendered with the
-same cameras as every other sheet here; `hero.png` is a separate Blender render of the same URDF.
+same cameras as every other sheet here; `hero.png` is a separate Blender render of the same URDF, and
+`dresser.gif` / `dresser.mp4` are `spark/render/animate.py` driving its nine prismatic joints.
 
 A second draw of the same configuration ran to the 100-turn limit after 2 h 31 min without producing
 a record.

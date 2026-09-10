@@ -12,7 +12,7 @@ mixture-of-experts with 3B active parameters, quantized to NVFP4 for Blackwell a
 GB10.
 
 <!-- HERO: replaced at the 21:30 checkpoint if the current-harness thinking-on run holds together (see "Results") -->
-![A nine-drawer chest built by Qwen3.6 on a DGX Spark from one photo, closed and with every drawer open](spark/results/dresser-pinned-harness-thinking-on/hero.png)
+![A nine-drawer chest built by Qwen3.6 on a DGX Spark from one photo, its drawers opening one after another](spark/results/dresser-pinned-harness-thinking-on/dresser.gif)
 
 *Built by the local Qwen3.6 on the Spark from the photo and prompt in `spark/bench/dresser/`, on the earlier Articraft codebase (see Results).*
 

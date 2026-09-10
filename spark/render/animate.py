@@ -60,7 +60,7 @@ scene.collection.objects.link(pivot)
 cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
 scene.collection.objects.link(cam)
 cam.parent = pivot
-cam.location = mathutils.Vector((0, 1, 0.45)).normalized() * size * 2.0
+cam.location = mathutils.Vector((0, 1, 0.45)).normalized() * size * 2.7
 cam.rotation_euler = (-cam.location).to_track_quat("-Z", "Y").to_euler()
 scene.camera = cam
 for frame, angle in ((1, -35), (n // 2, 35), (n, -35)):
