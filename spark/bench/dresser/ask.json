@@ -1,0 +1,10 @@
+{
+ "key": "dresser",
+ "ask": {
+  "min_joints": 9,
+  "required": {
+   "prismatic": 9
+  }
+ },
+ "prompt_sha256": "bcd8c127cb630a0389d8fd53a0a5dde55b3d3b8f4b6e0438add789f06ad35bba"
+}
