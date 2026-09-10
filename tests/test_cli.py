@@ -252,7 +252,8 @@ def test_cli_rejects_openrouter_reference_image(monkeypatch, tmp_path: Path) -> 
     )
 
     assert result.exit_code == 1
-    assert "OpenRouter does not support reference images." in result.output
+    assert "configured for text only" in result.output
+    assert "ARTICRAFT_OPENROUTER_IMAGES=1" in result.output
     assert FakeAgent.instances == []
 
 

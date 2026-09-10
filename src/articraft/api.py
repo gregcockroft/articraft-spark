@@ -21,6 +21,9 @@ from typing import Any, Literal, cast, get_args
 from articraft.agent import Agent, events
 from articraft.agent.provider import create_model
 from articraft.agent.provider.anthropic import anthropic_api_key_value
+from articraft.agent.provider.openrouter import (
+    requires_api_key as openrouter_requires_api_key,
+)
 from articraft.agent.workspace import LocalWorkspace
 from articraft.settings import Settings, get_settings
 
@@ -200,7 +203,10 @@ def _resolved_settings(
 def _missing_provider_settings(settings: Settings) -> list[str]:
     if settings.provider == "openrouter":
         missing = []
-        if not (settings.openrouter_api_key or "").strip():
+        if (
+            openrouter_requires_api_key(settings)
+            and not (settings.openrouter_api_key or "").strip()
+        ):
             missing.append("OPENROUTER_API_KEY")
         if not settings.openrouter_model.strip():
             missing.append("ARTICRAFT_OPENROUTER_MODEL or --model")

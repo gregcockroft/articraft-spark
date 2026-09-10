@@ -11,7 +11,7 @@ Set the API key for the provider that you want to use:
 | OpenAI | `OPENAI_API_KEY` | `gpt-6-astra` | Yes |
 | Anthropic | `ANTHROPIC_API_KEY` | `claude-sonnet-5` | Yes |
 | Gemini | `GEMINI_API_KEY` | `gemini-3.6-flash` | Yes |
-| OpenRouter | `OPENROUTER_API_KEY` | `nvidia/nemotron-3-ultra-550b-a55b:free` | No |
+| OpenRouter | `OPENROUTER_API_KEY` | `nvidia/nemotron-3-ultra-550b-a55b:free` | Opt-in |
 
 You can put the key in `.env` or set it for one command. Do not commit API keys.
 
@@ -57,7 +57,8 @@ still continue if the provider accepts the model.
 
 ## Use OpenRouter
 
-OpenRouter accepts text prompts only. Do not pass `--image` with this provider.
+OpenRouter accepts text prompts only by default. Do not pass `--image` with this provider
+unless the selected model takes images and you set `ARTICRAFT_OPENROUTER_IMAGES=1`.
 
 Set `OPENROUTER_HTTP_REFERER` and `OPENROUTER_APP_TITLE` if you want OpenRouter attribution.
 These values are optional.
@@ -77,6 +78,40 @@ The model's maximum output size is separate from its context window. If it is be
 This setting defaults to 8192 and must be positive. It caps summary requests only.
 A smaller limit requested by the agent is still respected. It does not change ordinary
 generation requests.
+
+## Point the OpenRouter provider at a local server
+
+The OpenRouter provider speaks plain OpenAI `/chat/completions`, so it drives any
+OpenAI-compatible server — vLLM, llama.cpp, Ollama — with no new provider code. Set the
+base URL to the server's `/v1` root:
+
+```shell
+ARTICRAFT_PROVIDER=openrouter \
+ARTICRAFT_OPENROUTER_BASE_URL=http://localhost:8001/v1 \
+ARTICRAFT_OPENROUTER_MODEL=qwen \
+ARTICRAFT_OPENROUTER_CONTEXT_WINDOW_TOKENS=262144 \
+uv run articraft "a chest of drawers"
+```
+
+`ARTICRAFT_OPENROUTER_BASE_URL` accepts the `/v1` root or the full
+`/v1/chat/completions` path. `OPENROUTER_API_KEY` is required only when the base URL is
+openrouter.ai itself; a self-hosted server needs no credential, and no `Authorization`
+header is sent when the key is unset. Set the key anyway if your server checks one.
+
+Reasoning models served by vLLM with `--reasoning-parser` return their thinking in
+`message.reasoning`, which this provider records as `provider_content` and replays on the
+next request, so a reasoning-only turn is not lost.
+
+### Images from a local vision model
+
+`ARTICRAFT_OPENROUTER_IMAGES=1` turns on image input for endpoints whose model accepts it —
+it enables `view_image`, the image-aware prompts, and `--image`. Articraft's `input_image`
+items are sent as chat-completions `image_url` parts carrying the base64 data URL. A
+chat-completions `tool` message cannot carry an image, so an image returned by `view_image`
+is sent in a user message immediately after the tool result.
+
+Leave the setting off for openrouter.ai and for any text-only model: with it off, an image
+in the conversation raises an error rather than being silently dropped.
 
 ## Use the Python API
 

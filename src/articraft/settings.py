@@ -21,6 +21,7 @@ DEFAULT_GEMINI_MODEL = "gemini-3.6-flash"
 DEFAULT_GEMINI_MAX_ATTEMPTS = 4
 DEFAULT_GEMINI_REQUEST_TIMEOUT_SECONDS = 900.0
 DEFAULT_OPENROUTER_MODEL = "nvidia/nemotron-3-ultra-550b-a55b:free"
+DEFAULT_OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
 DEFAULT_OPENROUTER_MAX_ATTEMPTS = 4
 DEFAULT_OPENROUTER_REQUEST_TIMEOUT_SECONDS = 900.0
 
@@ -103,6 +104,14 @@ class Settings(BaseSettings):
     openrouter_api_key: str | None = Field(
         default=None,
         validation_alias="OPENROUTER_API_KEY",
+    )
+    openrouter_base_url: str = Field(
+        default=DEFAULT_OPENROUTER_BASE_URL,
+        validation_alias="ARTICRAFT_OPENROUTER_BASE_URL",
+    )
+    openrouter_supports_images: bool = Field(
+        default=False,
+        validation_alias="ARTICRAFT_OPENROUTER_IMAGES",
     )
     openrouter_max_attempts: int = Field(
         default=DEFAULT_OPENROUTER_MAX_ATTEMPTS,

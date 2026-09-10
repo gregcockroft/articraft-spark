@@ -73,8 +73,12 @@ def generate(
         typer.echo(f"reference image does not exist: {image}", err=True)
         raise typer.Exit(2)
     settings = _settings(provider, model, output_dir, effort, compile_timeout, physics)
-    if image is not None and settings.provider == "openrouter":
-        typer.echo("OpenRouter does not support reference images.", err=True)
+    if image is not None and settings.provider == "openrouter" and not settings.openrouter_supports_images:
+        typer.echo(
+            "This OpenRouter endpoint is configured for text only. Set "
+            "ARTICRAFT_OPENROUTER_IMAGES=1 if the served model accepts images.",
+            err=True,
+        )
         raise typer.Exit(1)
     use_tui = tui if tui is not None else sys.stdout.isatty()
     try:

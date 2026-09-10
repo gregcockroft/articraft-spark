@@ -6,21 +6,21 @@ import logging
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
 from articraft.errors import ModelError
 from articraft.settings import Settings, get_settings
 
-_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+_OPENROUTER_HOST = "openrouter.ai"
+_TOOL_IMAGE_TEXT = "Image returned by the preceding tool call."
 _RETRY_BASE_SECONDS = 0.5
 _RETRY_MAX_SECONDS = 20.0
 logger = logging.getLogger(__name__)
 
 
 class OpenRouterModel:
-    supports_images = False
-
     def __init__(
         self,
         settings: Settings | None = None,
@@ -28,12 +28,18 @@ class OpenRouterModel:
         client: httpx.AsyncClient | None = None,
     ):
         self.config = settings or get_settings()
-        if not (self.config.openrouter_api_key or "").strip():
+        self._api_url = _chat_completions_url(self.config.openrouter_base_url)
+        # A self-hosted OpenAI-compatible server (vLLM, llama.cpp, Ollama) needs no
+        # credential; only openrouter.ai itself does.
+        if requires_api_key(self.config) and not (self.config.openrouter_api_key or "").strip():
             raise ModelError("OpenRouter credentials are required. Set OPENROUTER_API_KEY.")
         if not self.config.openrouter_model.strip():
             raise ModelError(
                 "OpenRouter model is required. Pass --model or set ARTICRAFT_OPENROUTER_MODEL."
             )
+        # openrouter.ai routes to text-only models by default; a local vision server
+        # opts in with ARTICRAFT_OPENROUTER_IMAGES=1.
+        self.supports_images = bool(self.config.openrouter_supports_images)
         self._client = client
 
     @property
@@ -50,7 +56,7 @@ class OpenRouterModel:
         """Query OpenRouter and return the response shape used by the agent."""
         request: dict[str, Any] = {
             "model": self.config.openrouter_model,
-            "messages": _messages(messages),
+            "messages": _messages(messages, images=self.supports_images),
         }
         converted_tools = _tools(tools or [])
         if converted_tools:
@@ -81,7 +87,7 @@ class OpenRouterModel:
         """Create a plain checkpoint with one completion call and no tools."""
         request: dict[str, Any] = {
             "model": self.config.openrouter_model,
-            "messages": _messages(messages),
+            "messages": _messages(messages, images=self.supports_images),
             "max_tokens": min(
                 max_output_tokens,
                 self.config.openrouter_summary_max_output_tokens,
@@ -110,7 +116,7 @@ class OpenRouterModel:
             response: httpx.Response | None = None
             try:
                 response = await self._client_or_create().post(
-                    _API_URL,
+                    self._api_url,
                     headers=self._headers(),
                     json=request,
                     timeout=self.config.openrouter_request_timeout_seconds,
@@ -177,10 +183,10 @@ class OpenRouterModel:
         return self._client
 
     def _headers(self) -> dict[str, str]:
-        headers = {
-            "Authorization": f"Bearer {(self.config.openrouter_api_key or '').strip()}",
-            "Content-Type": "application/json",
-        }
+        headers = {"Content-Type": "application/json"}
+        key = (self.config.openrouter_api_key or "").strip()
+        if key:
+            headers["Authorization"] = f"Bearer {key}"
         referer = (self.config.openrouter_http_referer or "").strip()
         if referer:
             headers["HTTP-Referer"] = referer
@@ -190,22 +196,40 @@ class OpenRouterModel:
         return headers
 
 
-def _messages(messages: list[dict[str, Any]]) -> list[dict[str, Any]]:
+def _messages(messages: list[dict[str, Any]], *, images: bool = False) -> list[dict[str, Any]]:
     converted: list[dict[str, Any]] = []
     for message in messages:
         if message.get("type") == "function_call_output":
+            text, image_parts = _split_content(message.get("output"), images=images)
             converted.append(
                 {
                     "role": "tool",
                     "tool_call_id": str(message.get("call_id") or ""),
-                    "content": _tool_result_content(message.get("output")),
+                    "content": text,
                 }
             )
+            # A chat-completions tool message carries text only, so an image a tool
+            # returned rides in a user message immediately after it.
+            if image_parts:
+                converted.append(
+                    {
+                        "role": "user",
+                        "content": [{"type": "text", "text": _TOOL_IMAGE_TEXT}, *image_parts],
+                    }
+                )
             continue
 
         role = message.get("role")
         if role in {"system", "user"}:
-            converted.append({"role": role, "content": _text_content(message.get("content"))})
+            text, image_parts = _split_content(message.get("content"), images=images)
+            if image_parts:
+                parts: list[dict[str, Any]] = []
+                if text:
+                    parts.append({"type": "text", "text": text})
+                parts.extend(image_parts)
+                converted.append({"role": role, "content": parts})
+            else:
+                converted.append({"role": role, "content": text})
         elif role == "assistant":
             converted.append(_assistant_message(message))
     return converted
@@ -244,28 +268,47 @@ def _assistant_message(message: dict[str, Any]) -> dict[str, Any]:
 
 
 def _text_content(content: Any) -> str:
+    text, _ = _split_content(content, images=False)
+    return text
+
+
+def _split_content(content: Any, *, images: bool) -> tuple[str, list[dict[str, Any]]]:
+    """Split articraft content into chat-completions text and image_url parts."""
     if isinstance(content, str):
-        return content
+        return content, []
+    if content is None:
+        return "", []
     if not isinstance(content, list):
-        raise TypeError("OpenRouterModel message content must be a string or list")
+        return json.dumps(content), []
 
     text: list[str] = []
+    image_parts: list[dict[str, Any]] = []
     for item in content:
         if not isinstance(item, dict):
             continue
-        if item.get("type") == "input_image":
-            raise ModelError("OpenRouterModel supports text input and function calling, not images")
-        if item.get("type") == "input_text":
+        kind = item.get("type")
+        if kind == "input_image":
+            if not images:
+                raise ModelError(
+                    "OpenRouterModel is configured for text input and function calling, not "
+                    "images. Set ARTICRAFT_OPENROUTER_IMAGES=1 for a vision-capable endpoint."
+                )
+            image_parts.append(_image_part(item))
+        elif kind == "input_text":
             text.append(str(item.get("text") or ""))
-    return "\n".join(text)
+    return "\n".join(text), image_parts
 
 
-def _tool_result_content(output: Any) -> str:
-    if isinstance(output, str):
-        return output
-    if isinstance(output, list):
-        return _text_content(output)
-    return json.dumps(output)
+def _image_part(item: dict[str, Any]) -> dict[str, Any]:
+    url = str(item.get("image_url") or "")
+    if not url:
+        raise ModelError("OpenRouter image input requires an image_url")
+    image_url: dict[str, Any] = {"url": url}
+    # articraft's "original" is not a chat-completions detail; send only what the API takes.
+    detail = item.get("detail")
+    if detail in {"low", "high", "auto"}:
+        image_url["detail"] = detail
+    return {"type": "image_url", "image_url": image_url}
 
 
 def _arguments_text(arguments: Any) -> str:
@@ -459,6 +502,35 @@ def _retry_delay(attempt: int, retry_after: str | None = None) -> float:
     return min(_RETRY_MAX_SECONDS, _RETRY_BASE_SECONDS * (2 ** (attempt - 1)))
 
 
+def _chat_completions_url(base_url: str) -> str:
+    """Build the chat-completions endpoint from a base URL such as http://localhost:8001/v1."""
+    base = (base_url or "").strip().rstrip("/")
+    if not base:
+        raise ModelError(
+            "OpenRouter base URL is required. Set ARTICRAFT_OPENROUTER_BASE_URL or leave it unset."
+        )
+    if base.endswith("/chat/completions"):
+        return base
+    return f"{base}/chat/completions"
+
+
+def requires_api_key(settings: Settings) -> bool:
+    """Report whether the configured endpoint needs a credential.
+
+    openrouter.ai always does. A self-hosted OpenAI-compatible server (vLLM,
+    llama.cpp, Ollama) does not, so a run must not be blocked for want of a key.
+    """
+    try:
+        url = _chat_completions_url(settings.openrouter_base_url)
+    except ModelError:
+        return True
+    return _is_openrouter_host(url)
+
+
+def _is_openrouter_host(url: str) -> bool:
+    return (urlparse(url).hostname or "").lower().endswith(_OPENROUTER_HOST)
+
+
 def _int(value: Any) -> int:
     try:
         return int(value)
@@ -471,4 +543,4 @@ def _format_exception(exc: BaseException) -> str:
     return f"{type(exc).__name__}: {message or repr(exc)}"
 
 
-__all__ = ["OpenRouterModel"]
+__all__ = ["OpenRouterModel", "requires_api_key"]
