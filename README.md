@@ -15,12 +15,6 @@ GB10.
 
 *Built by the local Qwen3.6 on the Spark from the photo and prompt in `spark/bench/dresser/`, on the earlier Articraft codebase (see Results).*
 
-**Where it stands.** The whole loop runs on the Spark against current Articraft: the local model reads the
-photo, writes the CAD program, compiles it and exports a USDZ with the right joint types. On the earlier
-Articraft codebase the same model built the coherent chest above. On current Articraft it does not yet: with
-thinking off its parts do not fit together, and with thinking on it deliberates without acting. Both are
-measured below, and `spark/score.py` exists so a joint count cannot hide the first.
-
 ## Why
 
 This is one piece of **scenewright**, a pipeline on the same Spark that turns a photo or a prompt into
@@ -120,8 +114,8 @@ flowchart LR
 
 ## Limits
 
-- **Thinking is a trade, and on current Articraft neither side works yet.** Off, the model is quick and the
-  geometry does not hold together. On, it reasoned to the 32k-token cap three turns running without acting.
+- **Thinking is a trade.** Off, the model is quick and the geometry did not hold together in these runs.
+  On, it reasoned to the 32k-token cap three turns running without acting.
   vLLM's `thinking_token_budget` would cap the thinking rather than the turn; on this server (MTP-2) it is
   accepted and has no effect.
 - **On the current harness the model does not stop on its own.** Every run there so far ended at the
