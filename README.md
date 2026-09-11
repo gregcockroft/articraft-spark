@@ -21,6 +21,15 @@ Articraft codebase the same model built the coherent chest above. On current Art
 thinking off its parts do not fit together, and with thinking on it deliberates without acting. Both are
 measured below, and `spark/score.py` exists so a joint count cannot hide the first.
 
+## Why
+
+This is one piece of **scenewright**, a pipeline on the same Spark that turns a photo or a prompt into
+a Blender room (not public yet). Every object it reconstructs is a single scanned mesh, so a chest of
+drawers arrives as one frozen shape. Articraft builds the replacement: the same kind of object as rigid
+bodies and joints. scenewright can swap one in by name from its Articraft library, which is how the
+chest above ends up in its living room with drawers that open. (In the video the chest's facing was set
+by hand; turning a swapped asset to face the room automatically is still open work in scenewright.)
+
 ## Run it
 
 On a DGX Spark with Docker and the NVIDIA container toolkit:
