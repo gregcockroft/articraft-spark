@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from email.utils import parsedate_to_datetime
 from typing import Any
@@ -21,6 +22,15 @@ _DROPPED_IMAGE_TEXT = (
 )
 _RETRY_BASE_SECONDS = 0.5
 _RETRY_MAX_SECONDS = 20.0
+# Qwen's thinking-budget recipe: append a closing sentence to the truncated reasoning,
+# close the think block, and the model answers from the thinking it has. Qwen's own
+# wording ends "give the solution based on the thinking directly now"; this one points
+# at the tools, which is what an agent turn has to produce (6/6 tool calls against 5/6
+# in a small live comparison on Qwen3.6).
+_THINKING_CLOSE = (
+    "Considering the limited time by the user, I have to stop thinking and act on this "
+    "plan now, using the tools directly."
+)
 logger = logging.getLogger(__name__)
 
 
@@ -77,6 +87,8 @@ class OpenRouterModel:
         converted_tools = _tools(tools or [])
         if converted_tools:
             request["tools"] = converted_tools
+        if self.config.openrouter_thinking_budget_tokens:
+            return await self._query_with_thinking_budget(request)
 
         response = await self._send_with_retries(request)
         payload = _response_payload(response)
@@ -99,6 +111,112 @@ class OpenRouterModel:
             "provider_content": provider_content,
             "response": payload,
         }
+
+    async def _query_with_thinking_budget(self, request: dict[str, Any]) -> dict[str, Any]:
+        """Bound one turn's reasoning, then make the model act on what it has.
+
+        A served reasoning model can deliberate to the output cap with no tool call --
+        Qwen3.6 did so three turns running at 32,768 tokens each. vLLM's own
+        `thinking_token_budget` is accepted and ignored on that server, so the bound is
+        enforced here, the way Qwen's thinking-budget recipe does it: stream the turn,
+        and once reasoning alone has spent the budget, close the stream (which aborts
+        generation) and resend the conversation with that reasoning as an assistant
+        prefix ending in a closing sentence, so the answer comes from the thinking it
+        has. A turn that starts acting within the budget streams to completion unchanged.
+        """
+        budget = self.config.openrouter_thinking_budget_tokens
+        turn = await self._stream_until_budget(request, budget)
+        if not turn.budget_hit:
+            return turn.result()
+
+        prefix = turn.reasoning.rstrip() + "\n\n" + _THINKING_CLOSE
+        continuation = dict(request)
+        continuation["messages"] = [
+            *request["messages"],
+            {"role": "assistant", "content": "", "reasoning": prefix},
+        ]
+        continuation["continue_final_message"] = True
+        continuation["add_generation_prompt"] = False
+        # The prefix already closed the think block. The reasoning parser labels output
+        # without a closing tag as truncated reasoning unless thinking is declared off.
+        continuation["chat_template_kwargs"] = {
+            **request.get("chat_template_kwargs", {}),
+            "enable_thinking": False,
+        }
+        response = await self._send_with_retries(continuation)
+        payload = _response_payload(response)
+        _raise_for_provider_error(response.status_code, payload)
+        text, tool_calls, provider_content = _assistant_output(payload)
+        reasoning_item = {
+            "type": "openrouter_reasoning",
+            "reasoning": prefix,
+            "thinking_budget_tokens": budget,
+        }
+        return {
+            "text": text,
+            "tool_calls": tool_calls,
+            "token_usage": _add_usage(turn.token_usage(), _response_token_usage(payload)),
+            "cost": _response_cost(payload),
+            "provider_content": [reasoning_item, *provider_content],
+            "response": payload,
+        }
+
+    async def _stream_until_budget(self, request: dict[str, Any], budget: int) -> _StreamedTurn:
+        streaming = {
+            **request,
+            "stream": True,
+            "stream_options": {"include_usage": True, "continuous_usage_stats": True},
+        }
+        turn = _StreamedTurn()
+        for attempt in range(1, self.config.openrouter_max_attempts + 1):
+            try:
+                async with self._client_or_create().stream(
+                    "POST",
+                    self._api_url,
+                    headers=self._headers(),
+                    json=streaming,
+                    timeout=self.config.openrouter_request_timeout_seconds,
+                ) as response:
+                    if response.status_code >= 400:
+                        await response.aread()
+                        if _retryable_status(response.status_code) and (
+                            attempt < self.config.openrouter_max_attempts
+                        ):
+                            raise _Retry(f"HTTP {response.status_code}")
+                        raise ModelError(
+                            _provider_error(response.status_code, _error_payload(response))
+                        )
+                    async for line in response.aiter_lines():
+                        if not line.startswith("data: "):
+                            continue
+                        data = line[6:].strip()
+                        if data == "[DONE]":
+                            break
+                        turn.take(json.loads(data))
+                        if not turn.acting and turn.completion_tokens >= budget:
+                            turn.budget_hit = True
+                            # Leaving the block closes the response, and the server
+                            # aborts the generation on the disconnect.
+                            break
+                return turn
+            except _Retry as exc:
+                reason = str(exc)
+            except (httpx.TimeoutException, httpx.TransportError) as exc:
+                if attempt >= self.config.openrouter_max_attempts or turn.completion_tokens:
+                    raise ModelError(
+                        f"OpenRouter request failed: {_format_exception(exc)}"
+                    ) from exc
+                reason = _format_exception(exc)
+            delay = _retry_delay(attempt)
+            logger.warning(
+                "OpenRouter stream failed (attempt %s/%s), retrying in %.2fs: %s",
+                attempt,
+                self.config.openrouter_max_attempts,
+                delay,
+                reason,
+            )
+            await asyncio.sleep(delay)
+        raise AssertionError("retry loop did not return or raise")
 
     async def summarize_context(
         self,
@@ -220,6 +338,95 @@ class OpenRouterModel:
         if title:
             headers["X-OpenRouter-Title"] = title
         return headers
+
+
+class _Retry(Exception):
+    """A retryable HTTP status on the streaming request."""
+
+
+@dataclass
+class _StreamedTurn:
+    """One turn assembled from chat-completions stream chunks."""
+
+    reasoning_parts: list[str] = field(default_factory=list)
+    text_parts: list[str] = field(default_factory=list)
+    calls: dict[int, dict[str, Any]] = field(default_factory=dict)
+    usage: dict[str, Any] = field(default_factory=dict)
+    finish_reason: str | None = None
+    acting: bool = False
+    budget_hit: bool = False
+
+    def take(self, chunk: dict[str, Any]) -> None:
+        if isinstance(chunk.get("usage"), dict):
+            self.usage = chunk["usage"]
+        for choice in chunk.get("choices") or []:
+            if not isinstance(choice, dict):
+                continue
+            delta = choice.get("delta") or {}
+            piece = delta.get("reasoning") or delta.get("reasoning_content")
+            if isinstance(piece, str) and piece:
+                self.reasoning_parts.append(piece)
+            if isinstance(delta.get("content"), str) and delta["content"]:
+                self.text_parts.append(delta["content"])
+                self.acting = True
+            for raw_call in delta.get("tool_calls") or []:
+                if not isinstance(raw_call, dict):
+                    continue
+                self.acting = True
+                call = self.calls.setdefault(
+                    _int(raw_call.get("index")), {"id": "", "name": "", "arguments": []}
+                )
+                if raw_call.get("id"):
+                    call["id"] = str(raw_call["id"])
+                function = raw_call.get("function") or {}
+                if function.get("name"):
+                    call["name"] = str(function["name"])
+                if function.get("arguments"):
+                    call["arguments"].append(str(function["arguments"]))
+            if choice.get("finish_reason"):
+                self.finish_reason = str(choice["finish_reason"])
+
+    @property
+    def reasoning(self) -> str:
+        return "".join(self.reasoning_parts)
+
+    @property
+    def completion_tokens(self) -> int:
+        return _int(self.usage.get("completion_tokens"))
+
+    def token_usage(self) -> dict[str, int]:
+        return _response_token_usage({"usage": self.usage})
+
+    def result(self) -> dict[str, Any]:
+        text = "".join(self.text_parts)
+        tool_calls = []
+        for index in sorted(self.calls):
+            call = self.calls[index]
+            if not call["id"] or not call["name"]:
+                raise ModelError("OpenRouter returned a function call without an id or name")
+            tool_calls.append(
+                {"id": call["id"], "name": call["name"], "arguments": "".join(call["arguments"])}
+            )
+        provider_content: list[dict[str, Any]] = []
+        if self.reasoning:
+            provider_content.append({"type": "openrouter_reasoning", "reasoning": self.reasoning})
+        if not text and not tool_calls and not provider_content:
+            raise ModelError("OpenRouter response did not contain text or tool calls")
+        return {
+            "text": text,
+            "tool_calls": tool_calls,
+            "token_usage": self.token_usage(),
+            "cost": 0.0,
+            "provider_content": provider_content,
+            "response": {
+                "choices": [{"message": {"content": text}, "finish_reason": self.finish_reason}],
+                "usage": self.usage,
+            },
+        }
+
+
+def _add_usage(first: dict[str, int], second: dict[str, int]) -> dict[str, int]:
+    return {key: first.get(key, 0) + second.get(key, 0) for key in first.keys() | second.keys()}
 
 
 def _messages(

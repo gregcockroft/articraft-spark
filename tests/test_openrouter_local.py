@@ -487,3 +487,220 @@ def test_pruning_is_a_no_op_below_the_limit() -> None:
         if item.get("type") == "image_url"
     ]
     assert len(urls) == 3
+
+
+def sse(chunks: list[dict[str, Any]]) -> bytes:
+    """What vLLM streams: one `data:` line per chunk, then [DONE]."""
+    lines = [f"data: {json.dumps(chunk)}\n\n" for chunk in chunks]
+    return "".join([*lines, "data: [DONE]\n\n"]).encode()
+
+
+def stream_chunk(
+    delta: dict[str, Any],
+    *,
+    completion_tokens: int,
+    finish_reason: str | None = None,
+) -> dict[str, Any]:
+    return {
+        "id": "gen-local",
+        "choices": [{"index": 0, "delta": delta, "finish_reason": finish_reason}],
+        "usage": {
+            "prompt_tokens": 100,
+            "completion_tokens": completion_tokens,
+            "total_tokens": 100 + completion_tokens,
+        },
+    }
+
+
+def tool_call_response() -> dict[str, Any]:
+    return {
+        "id": "gen-local",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "",
+                    "tool_calls": [
+                        {
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {"name": "write", "arguments": '{"path": "main.py"}'},
+                        }
+                    ],
+                },
+                "finish_reason": "tool_calls",
+            }
+        ],
+        "usage": {"prompt_tokens": 400, "completion_tokens": 50, "total_tokens": 450},
+    }
+
+
+def budget_model(
+    responses: list[bytes | dict[str, Any]],
+    **settings: Any,
+) -> tuple[OpenRouterModel, list[httpx.Request]]:
+    requests: list[httpx.Request] = []
+
+    def handle(request: httpx.Request) -> httpx.Response:
+        requests.append(request)
+        body = responses.pop(0)
+        if isinstance(body, bytes):
+            return httpx.Response(200, content=body)
+        return httpx.Response(200, json=body)
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handle))
+    settings.setdefault("provider", "openrouter")
+    settings.setdefault("openrouter_base_url", LOCAL_BASE_URL)
+    settings.setdefault("openrouter_model", "qwen")
+    settings.setdefault("openrouter_thinking_budget_tokens", 8)
+    return OpenRouterModel(Settings(**settings), client=client), requests
+
+
+TOOLS = [{"type": "function", "name": "write", "description": "write", "parameters": {}}]
+
+
+def test_no_thinking_budget_means_no_streaming() -> None:
+    model, requests = local_model([text_response()])
+
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert "stream" not in request_json(requests[0])
+
+
+def test_a_turn_that_acts_within_the_budget_streams_to_completion() -> None:
+    """Reasoning under the budget, then a tool call: one request, assembled from the stream."""
+    model, requests = budget_model(
+        [
+            sse(
+                [
+                    stream_chunk({"role": "assistant"}, completion_tokens=0),
+                    stream_chunk({"reasoning": "Plan the "}, completion_tokens=2),
+                    stream_chunk({"reasoning": "carcass first."}, completion_tokens=4),
+                    stream_chunk(
+                        {
+                            "tool_calls": [
+                                {
+                                    "index": 0,
+                                    "id": "call_1",
+                                    "type": "function",
+                                    "function": {"name": "write", "arguments": '{"path": '},
+                                }
+                            ]
+                        },
+                        completion_tokens=6,
+                    ),
+                    stream_chunk(
+                        {"tool_calls": [{"index": 0, "function": {"arguments": '"main.py"}'}}]},
+                        completion_tokens=9,
+                        finish_reason="tool_calls",
+                    ),
+                ]
+            )
+        ]
+    )
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}], tools=TOOLS))
+
+    assert len(requests) == 1
+    sent = request_json(requests[0])
+    assert sent["stream"] is True
+    assert sent["stream_options"] == {"include_usage": True, "continuous_usage_stats": True}
+    assert result["tool_calls"] == [
+        {"id": "call_1", "name": "write", "arguments": '{"path": "main.py"}'}
+    ]
+    assert result["provider_content"] == [
+        {"type": "openrouter_reasoning", "reasoning": "Plan the carcass first."}
+    ]
+    assert result["token_usage"]["output_tokens"] == 9
+
+
+def test_reasoning_past_the_budget_is_closed_and_answered() -> None:
+    """The runaway shape: reasoning only, past the budget. Abort, then continue from a closed prefix."""
+    model, requests = budget_model(
+        [
+            sse(
+                [
+                    stream_chunk({"role": "assistant"}, completion_tokens=0),
+                    stream_chunk({"reasoning": "Let me reconsider "}, completion_tokens=4),
+                    stream_chunk({"reasoning": "the drawer depth again."}, completion_tokens=8),
+                    stream_chunk({"reasoning": " And again."}, completion_tokens=12),
+                ]
+            ),
+            tool_call_response(),
+        ],
+        openrouter_chat_template_kwargs='{"preserve_thinking": true}',
+        openrouter_max_output_tokens=32_768,
+    )
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}], tools=TOOLS))
+
+    assert len(requests) == 2
+    continuation = request_json(requests[1])
+    assert continuation["continue_final_message"] is True
+    assert continuation["add_generation_prompt"] is False
+    assert continuation["chat_template_kwargs"] == {
+        "preserve_thinking": True,
+        "enable_thinking": False,
+    }
+    assert continuation["max_tokens"] == 32_768
+    assert continuation["tools"][0]["function"]["name"] == "write"
+    assert "stream" not in continuation
+    last = continuation["messages"][-1]
+    assert last["role"] == "assistant"
+    assert last["content"] == ""
+    assert last["reasoning"].startswith("Let me reconsider the drawer depth again.")
+    assert last["reasoning"].endswith("act on this plan now, using the tools directly.")
+    # The abort happened at the budget, not at the end of the stream.
+    assert " And again." not in last["reasoning"]
+
+    assert result["tool_calls"][0]["name"] == "write"
+    assert result["provider_content"][0]["thinking_budget_tokens"] == 8
+    assert result["provider_content"][0]["reasoning"] == last["reasoning"]
+    # Both phases are charged: 100 + 8 in, 8 + 50 out.
+    assert result["token_usage"]["input_tokens"] == 500
+    assert result["token_usage"]["output_tokens"] == 58
+
+
+def test_reasoning_that_ends_under_the_budget_is_an_empty_turn() -> None:
+    """Same contract as the non-streaming path: thinking alone is an empty turn, not an error."""
+    model, requests = budget_model(
+        [
+            sse(
+                [
+                    stream_chunk({"reasoning": "Just thinking."}, completion_tokens=3),
+                    stream_chunk({}, completion_tokens=3, finish_reason="stop"),
+                ]
+            )
+        ]
+    )
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert len(requests) == 1
+    assert result["text"] == ""
+    assert result["tool_calls"] == []
+    assert result["provider_content"] == [
+        {"type": "openrouter_reasoning", "reasoning": "Just thinking."}
+    ]
+
+
+def test_text_after_the_budget_is_not_cut() -> None:
+    """Once the model is acting, the budget no longer applies, however long the answer runs."""
+    model, requests = budget_model(
+        [
+            sse(
+                [
+                    stream_chunk({"reasoning": "Short."}, completion_tokens=2),
+                    stream_chunk({"content": "I built "}, completion_tokens=4),
+                    stream_chunk({"content": "a dresser."}, completion_tokens=40),
+                    stream_chunk({}, completion_tokens=40, finish_reason="stop"),
+                ]
+            )
+        ]
+    )
+
+    result = run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert len(requests) == 1
+    assert result["text"] == "I built a dresser."

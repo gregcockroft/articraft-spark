@@ -147,6 +147,11 @@ class Settings(BaseSettings):
         ge=0,
         validation_alias="ARTICRAFT_OPENROUTER_MAX_IMAGES",
     )
+    openrouter_thinking_budget_tokens: int = Field(
+        default=0,
+        ge=0,
+        validation_alias="ARTICRAFT_OPENROUTER_THINKING_BUDGET_TOKENS",
+    )
 
     @field_validator("openrouter_context_window_tokens")
     @classmethod
