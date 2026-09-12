@@ -3,6 +3,26 @@
 **A reference photo in, an articulated 3D asset out, on one NVIDIA DGX Spark with an open-weight
 model. No API key and no cloud once the weights are downloaded.**
 
+## Latest — 2026-09-12: a second local model built the dresser
+
+**[Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) drove this loop on one Spark**, from
+the same photo and the same one-paragraph prompt as the dresser below. It is served by
+**[blazux/qwen3.8-Flash-DGX](https://github.com/blazux/qwen3.8-Flash-DGX)** — about 135 GB of weights in
+NVFP4 do not fit on a 121 GB Spark under stock vLLM, and their patched build is what makes it run here.
+
+![The dresser built by Qwen3.8-Flash-Next on a DGX Spark, turning while its nine drawers slide open one after another](spark/results/dresser_flash_next.gif)
+
+*Qwen3.8-Flash-Next, 2026-09-11: **77 turns in 101 minutes, ended on its own final response** — and this is
+that run's own last revision, not a good step picked out of one. Nine prismatic joints, every slide
+horizontal and opening out of the front (`spark/score.py`: 9/9 and 9/9), every handle proud of its drawer
+front (`spark/handles.py`: 9/9). The fronts read better than the dresser below's; the sides of neither are
+right, with the drawer rails running out to the outside of the side panels on both.*
+
+On that server the model was ready in 752 s and decoded at 15.95 tok/s, and no source change was needed to
+drive it. **One run is not a result:** the draw beside it, at a lower reasoning effort, never called
+`compile` in 98 turns and produced nothing at all. Testing continues, and this repo will carry what the
+counts say — including the ones that go the other way.
+
 [Articraft](https://github.com/articraftresearch/Articraft) is an agent that turns a prompt or a
 reference photo into a posable 3D object. A language model writes Python against Articraft's CAD SDK;
 Articraft compiles it, checks it, and exports a USDZ with rigid bodies and joints. Upstream expects a
@@ -144,5 +164,7 @@ flowchart LR
 
 Articraft is by its authors at [articraftresearch/Articraft](https://github.com/articraftresearch/Articraft),
 Apache-2.0; its README is kept as [ARTICRAFT.md](ARTICRAFT.md), and [NOTICE](NOTICE) lists what this
-fork changed. Qwen3.6 is by the Qwen team; the NVFP4 checkpoint is by Red Hat AI; serving is
-[vLLM](https://github.com/vllm-project/vllm).
+fork changed. Qwen3.6 and Qwen3.8-Flash-Next are by the Qwen team; their NVFP4 checkpoints are by
+[Red Hat AI](https://huggingface.co/RedHatAI) and [RadixArk](https://huggingface.co/RadixArk);
+serving is [vLLM](https://github.com/vllm-project/vllm), and fitting Flash-Next onto one Spark is
+[blazux/qwen3.8-Flash-DGX](https://github.com/blazux/qwen3.8-Flash-DGX).
