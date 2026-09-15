@@ -81,6 +81,33 @@ and the photo beside it (`PROMPT=frozen` sends the short benchmark prompt instea
 (about an hour on a Spark), then prints a score and, with Blender available (`BLENDER=/path/to/blender`), writes `render/sheet.png` next to the run. Every input is
 checked against `SHA256SUMS` first, so a changed prompt cannot pass for a better model.
 
+### Starting from an empty folder, or reusing weights you already have
+
+[`spark/clone_and_demo.sh`](spark/clone_and_demo.sh) does the clone, `install.sh`, `serve.sh` and
+`demo_dresser.sh` above in one command, and never downloads weights silently:
+
+```shell
+./clone_and_demo.sh qwen3.6-35b-a3b-nvfp4 ~/.cache/huggingface   # <model-key> <hf-cache-dir> [demo|frozen]
+```
+
+It's standalone, so you don't need a checkout first — fetch just the script:
+
+```shell
+curl -O https://raw.githubusercontent.com/gregcockroft/articraft-spark/main/spark/clone_and_demo.sh
+chmod +x clone_and_demo.sh
+./clone_and_demo.sh qwen3.6-35b-a3b-nvfp4 /path/to/your/hf-cache
+```
+
+Run it from an empty folder — it clones this repo into `./articraft-spark` under wherever you run it
+and refuses to run if that folder already exists. The second argument is an `HF_CACHE` directory (e.g.
+your existing `~/.cache/huggingface`): `spark/cache.sh` checks it first and **aborts before starting
+anything** if the model's weights aren't already there, rather than downloading ~25–135 GB silently —
+point it at a cache that has them, or run `spark/cache.sh <model-key> --fetch` yourself first. It also
+reuses an already-running compatible server on the target port instead of restarting one, and renders
+automatically (`render/sheet.png`) if Blender is on `PATH`, `$BLENDER` is set, or it finds one in a
+couple of common local install spots. A third argument picks the `demo` (default) or `frozen` prompt;
+`FRESH_USD=1` forces a from-source OpenUSD build instead of reusing one already on the box.
+
 ## What had to change
 
 A local model behind an OpenAI-compatible server behaves in ways a hosted API hides. Six changes,
@@ -97,6 +124,31 @@ each a commit on top of Articraft `ac7d688`:
 
 Every new setting is off by default, so nothing changes for hosted providers. The tests are in
 `tests/test_openrouter_local.py`.
+
+## Check the results without a Spark
+
+The numbers below come from a small number of runs on one machine. That is a reason to make them
+checkable, not a reason to trust them. Each recorded run in [`spark/results/`](spark/results/)
+carries the USDZ it produced, so its geometry claims can be re-derived from files in this
+repository — no GPU, no model, no server, no network, about ten seconds:
+
+```shell
+spark/verify_results.sh          # after spark/install.sh
+```
+
+It checks each sample against its `SHA256SUMS`, then re-runs [`spark/score.py`](spark/score.py) and
+[`spark/handles.py`](spark/handles.py) on the committed USDZ and requires them to reproduce the
+committed `score.txt` and `handles.txt` line for line. Two lines are excluded on both sides, both
+provenance rather than geometry: `file`, which names the path the run happened at, and `record`,
+present only when the scorer was pointed at a run directory. If a published number is wrong, the
+script says so and exits non-zero.
+
+Where a run's turn-by-turn log is published beside it, [`spark/verify_run.py`](spark/verify_run.py)
+re-derives the turn count, the token counts and the compile turn from that log and checks them
+against the `stats.json` the tooling wrote.
+
+**What none of it checks is whether the object looks like the photo.** No script here does; that is
+what the sheets and the human reads are for, and it is the limit that decided four runs above.
 
 ## Results
 

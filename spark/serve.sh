@@ -29,6 +29,11 @@ command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 for v in SERVE_IMAGE SERVE_MAX_MODEL_LEN SERVE_GPU_UTIL SERVE_MAX_SEQS SERVE_TOOL_PARSER; do
   if [ -z "${!v:-}" ]; then
     echo "$KEY.env sets no $v: this model is not served by spark/serve.sh." >&2
+    if [ -n "${SERVE_EXTERNAL_REPO:-}" ]; then
+      echo "  served by:  ${SERVE_EXTERNAL_REPO} at ${SERVE_EXTERNAL_COMMIT:-unpinned}" >&2
+      echo "  base image: ${SERVE_EXTERNAL_BASE_IMAGE:-unpinned}" >&2
+      echo "  built as:   ${SERVE_EXTERNAL_TAG:-unpinned}" >&2
+    fi
     echo "Read the top of $ENV_FILE for how to start its server, then run spark/demo_dresser.sh $KEY once it answers on :\${ARTICRAFT_SERVE_PORT:-8001}." >&2
     exit 3
   fi
