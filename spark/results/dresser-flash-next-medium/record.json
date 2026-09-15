@@ -1,0 +1,15 @@
+{
+  "run_id": "20260912-130217-recreate-the-chest-of-drawers-shown-in-the-refer",
+  "status": "success",
+  "attempts": 1,
+  "error": "",
+  "result": "result/usdz/0000.usdz",
+  "terminate_reason": "final_response",
+  "cost": 0.0,
+  "token_usage": {
+    "input_tokens": 6127645,
+    "output_tokens": 109283,
+    "total_tokens": 6236928,
+    "cached_input_tokens": 0
+  }
+}

@@ -1,0 +1,15 @@
+file     articraft-bench/trials/2026-09-12_medium_1/runs/dresser/20260912-130217-recreate-the-chest-of-drawers-shown-in-the-refer/result/usdz/0000.usdz
+joints   9  prismatic 9
+ask      min 9, required {'prismatic': 9}  ->  PASS
+  slide_0_0              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_0_1              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_0_2              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_1_0              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_1_1              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_1_2              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_2_0              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_2_1              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  slide_2_2              world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+axis     9/9 prismatic axes horizontal  ->  PASS
+out      9/9 move away from their parent  ->  PASS
+RESULT   PASS  (now look at the render)

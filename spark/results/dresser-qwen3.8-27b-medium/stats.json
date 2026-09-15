@@ -1,0 +1,72 @@
+{
+  "attempts": 3,
+  "conversation": {
+    "compile_calls": 3,
+    "compile_turns": [
+      33,
+      35,
+      37
+    ],
+    "first_clean_compile_turn": 37,
+    "forced_close_turns": [
+      4
+    ],
+    "forced_closes": 1,
+    "peak_turn_input_tokens": 88923,
+    "status": "ok",
+    "turns": 39
+  },
+  "decode_tok_s_median": 8.4,
+  "draw": "d1",
+  "effective_output_tok_s": 8.07,
+  "effective_over_decode": 0.961,
+  "input_tokens": 2072630,
+  "instrument_check": {
+    "agree": true,
+    "difference": 0,
+    "difference_pct": 0.0,
+    "record_output_tokens": 45547,
+    "server_generation_tokens": 45547
+  },
+  "load": {
+    "status": "UNMEASURABLE: no switch.log"
+  },
+  "mode": "q38inferact",
+  "output_tokens": 45547,
+  "rc": 0,
+  "result": "result/usdz/0002.usdz",
+  "run_dir": "articraft-bench/trials/2026-09-12_medium_2/runs/dresser/20260912-211315-recreate-the-chest-of-drawers-shown-in-the-refer",
+  "server": {
+    "bracket": "before/after",
+    "cache_hit_pct": 91.77,
+    "cache_hits": 1901984,
+    "cache_queries": 2072630,
+    "generation_tokens": 45547,
+    "local_compute_pct": 8.23,
+    "local_compute_tokens": 170646,
+    "prompt_tokens": 2072630,
+    "span_s": 5646,
+    "status": "ok"
+  },
+  "status": "success",
+  "terminate_reason": "final_response",
+  "trial": "articraft-bench/trials/2026-09-12_medium_2",
+  "wall_note": "ok",
+  "wall_s": 5646,
+  "window": {
+    "decode_tok_s_median": 8.4,
+    "decode_tok_s_p90": 9.0,
+    "fraction_generating": 0.9786,
+    "fraction_generating_time_weighted": 0.9787,
+    "fraction_prefilling": 0.0,
+    "gaps": [],
+    "generating_windows": 1099,
+    "idle_windows": 24,
+    "prefilling_windows": 0,
+    "sample_period_s": 5,
+    "sampler_rows": 1124,
+    "status": "ok",
+    "window_seconds": 5645.0,
+    "windows": 1123
+  }
+}

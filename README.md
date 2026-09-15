@@ -19,9 +19,31 @@ front (`spark/handles.py`: 9/9). The fronts read better than the dresser below's
 right, with the drawer rails running out to the outside of the side panels on both.*
 
 On that server the model was ready in 752 s and decoded at 15.95 tok/s, and no source change was needed to
-drive it. **One run is not a result:** the draw beside it, at a lower reasoning effort, never called
-`compile` in 98 turns and produced nothing at all. Testing continues, and this repo will carry what the
-counts say — including the ones that go the other way.
+drive it.
+
+**2026-09-12 — it now holds over a registered pair, not one run.** Two draws at `reasoning_effort: medium`,
+on one server instance with no reload between them and predictions written before either started: **both
+produced a coherent dresser**, 64 turns in 1 h 57 m and 56 turns in 64 min, both ending on their own final
+response. Every revision either run produced passes all three automated checks — `spark/score.py` 9/9 and 9/9,
+`spark/handles.py` 9/9 proud, and a `pxr` placement read putting 9/9 drawers inside the carcass. The sample is
+[`spark/results/dresser-flash-next-medium/`](spark/results/dresser-flash-next-medium/).
+
+**And a second local model cleared the same bar the same night.** `Inferact/Qwen3.8-27B-NVFP4` — **~26 GB of
+weights on the pinned upstream vLLM image, no patched build** — produced a coherent dresser in **39 turns and
+1 h 34 m**: [`spark/results/dresser-qwen3.8-27b-medium/`](spark/results/dresser-qwen3.8-27b-medium/). It decodes
+at **half** Flash-Next's speed (8.4 against 16.2 tok/s) and still finishes sooner, because it spends 45,547
+output tokens where Flash-Next spends 109,283. **Run time here is output tokens ÷ decode rate**, and in all four
+draws 95–98 % of the wall was the model emitting tokens.
+
+**The setting is the whole difference, and the cheap-looking one is not cheap.** At `reasoning_effort: low`
+Flash-Next ran 98 turns without once calling `compile` and produced nothing — and spent **51 % more output
+tokens** (136,463) doing so.
+
+**What the checks do not see.** A human review of all four sheets rated them *"very good"*, *"good but feet missing
+at bottom"*, *"good but top and sides have underlying geometry slightly pushing through"*, *"poor — missing
+cavity on drawers"*. **All four passed `score.py`, `handles.py` and the placement read identically.** Missing
+feet and surfaces punching through another part are not something any check here looks at. Two of four draws
+would be called good by a person; the automated legs cannot tell you which two.
 
 [Articraft](https://github.com/articraftresearch/Articraft) is an agent that turns a prompt or a
 reference photo into a posable 3D object. A language model writes Python against Articraft's CAD SDK;

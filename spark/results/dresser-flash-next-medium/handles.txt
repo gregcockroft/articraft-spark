@@ -1,0 +1,10 @@
+  drawer_0_0     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_0_1     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_0_2     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_1_0     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_1_1     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_1_2     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_2_0     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_2_1     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+  drawer_2_2     handle(s) pull_bar, pull_lower_post, pull_upper_po proud of the front by +26.5 mm  OK
+handles  9/9 drawers have a handle standing proud of the front  ->  PASS

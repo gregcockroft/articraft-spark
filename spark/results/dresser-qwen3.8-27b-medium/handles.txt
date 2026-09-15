@@ -1,0 +1,10 @@
+  drawer_0_0     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_0_1     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_0_2     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_1_0     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_1_1     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_1_2     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_2_0     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_2_1     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+  drawer_2_2     handle(s) handle, handle_back                      proud of the front by +14.0 mm  OK
+handles  9/9 drawers have a handle standing proud of the front  ->  PASS
