@@ -22,6 +22,23 @@ mkdir -p "$LOG_DIR" "$HF_CACHE"
 [ "${MODEL_STATUS:-}" = tested ] || echo "note: $KEY is MODEL_STATUS=${MODEL_STATUS:-unset}; no result in spark/results/ was measured with it" >&2
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 
+# Serve offline when the pinned snapshot is already here. The cache path is the one spark/cache.sh
+# reports on, so the two agree by construction. An explicit HF_HUB_OFFLINE from the caller always wins,
+# in both directions: a caller who asks for 0 on a cached model gets 0.
+if [ -n "${HF_HUB_OFFLINE:-}" ]; then
+  echo "HF_HUB_OFFLINE=$HF_HUB_OFFLINE (from the caller)" >&2
+elif [ -z "${SERVE_REVISION:-}" ]; then
+  # Unpinned: there is no snapshot path to test, because a serve resolves `main` at the hub.
+  HF_HUB_OFFLINE=0
+  echo "HF_HUB_OFFLINE=0: $KEY pins no SERVE_REVISION, so this serve resolves '$SERVE_MODEL' at the hub and fetches it" >&2
+elif [ -d "$HF_CACHE/hub/models--${SERVE_MODEL//\//--}/snapshots/$SERVE_REVISION" ]; then
+  HF_HUB_OFFLINE=1
+  echo "HF_HUB_OFFLINE=1: $SERVE_MODEL at $SERVE_REVISION is in $HF_CACHE, so this serve needs no network" >&2
+else
+  HF_HUB_OFFLINE=0
+  echo "HF_HUB_OFFLINE=0: no snapshot at $HF_CACHE/hub/models--${SERVE_MODEL//\//--}/snapshots/$SERVE_REVISION, so the weights will be downloaded. \`spark/cache.sh $KEY\` says how much" >&2
+fi
+
 args=("$SERVE_MODEL" --served-model-name "$SERVE_NAME"
       --max-model-len "$SERVE_MAX_MODEL_LEN" --gpu-memory-utilization "$SERVE_GPU_UTIL"
       --max-num-seqs "$SERVE_MAX_SEQS"
@@ -35,7 +52,7 @@ args=("$SERVE_MODEL" --served-model-name "$SERVE_NAME"
 
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 docker run -d --name "$NAME" --gpus all --ipc=host -p "$PORT:8000" \
-  -e HF_HUB_OFFLINE="${HF_HUB_OFFLINE:-0}" -e VLLM_USE_FLASHINFER_SAMPLER=1 \
+  -e HF_HUB_OFFLINE="$HF_HUB_OFFLINE" -e VLLM_USE_FLASHINFER_SAMPLER=1 \
   -v "$HF_CACHE:/root/.cache/huggingface" \
   "$SERVE_IMAGE" "${args[@]}" >/dev/null
 LOG=$LOG_DIR/$KEY.log

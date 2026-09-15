@@ -20,3 +20,31 @@ To try another model, copy the closest file and change it:
 The things that decide whether a model can drive Articraft at all are the tool parser (it has to
 emit real tool calls) and the output cap (a reasoning model on a server that bounds nothing can
 think for tens of thousands of tokens without acting).
+
+## Bring your own cache
+
+A clone of this repo is a few megabytes; the weights are not. `spark/cache.sh <key>` says exactly what a
+given model file needs and whether this machine already has it, and downloads nothing unless you pass
+`--fetch`:
+
+```bash
+spark/cache.sh qwen3.8-27b-inferact              # present / missing, with sizes; exit 0 if nothing to fetch
+HF_CACHE=/mnt/models/huggingface spark/cache.sh qwen3.8-27b-inferact   # check a cache you already have
+spark/cache.sh qwen3.8-27b-inferact --fetch      # download the missing pieces (hub only, no token)
+```
+
+`HF_CACHE` (default `~/.cache/huggingface`) is where the snapshots live, and `spark/serve.sh` reads the
+same path: when the model file's pinned `SERVE_REVISION` is already there, the serve runs with
+`HF_HUB_OFFLINE=1` and touches no network. Set `HF_HUB_OFFLINE` yourself and your value wins either way.
+
+What each one costs, measured on a DGX Spark with `du -sbL` over the pinned snapshot. **Sizes are SI
+(1 GB = 1,000,000,000 bytes), the same units a disk is sold in** - not GiB:
+
+| key | weights | image |
+|---|---|---|
+| `qwen3.6-35b-a3b-nvfp4` | ~25 GB | the pinned `vllm/vllm-openai` digest, ~23 GB |
+| `qwen3.8-27b-inferact` | ~26 GB | the same pinned digest |
+| `qwen3.8-flash-next-nvfp4` | ~135 GB | **not served by `spark/serve.sh`** — it needs blazux/qwen3.8-Flash-DGX at its pin and the image built from it (~21 GB) |
+
+The built image has no registry to pull from: build it in that clone, or move it between machines with
+`docker save` and `docker load`.
