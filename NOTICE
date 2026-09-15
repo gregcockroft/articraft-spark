@@ -1,10 +1,12 @@
+This work is a modified version of Articraft (https://github.com/articraftresearch/Articraft),
+Copyright its authors, licensed under the Apache License, Version 2.0 (see LICENSE). Articraft's own
+README is preserved here as ARTICRAFT.md.
+
 articraft-spark
 Copyright 2026 The articraft-spark contributors
+The modifications listed below are licensed under the same Apache License, Version 2.0.
 
-This is a modified version of Articraft (https://github.com/articraftresearch/Articraft),
-Copyright its authors, licensed under the Apache License, Version 2.0 (see LICENSE).
-
-Modifications, all under the same license:
+Modifications:
 - pyproject.toml: OpenUSD is built from source on aarch64 Linux (spark/build_openusd.sh); no aarch64 wheel exists.
 - src/articraft/agent/provider/openrouter.py, src/articraft/settings.py, src/articraft/api.py,
   src/articraft/app.py, .env.example, docs/providers.md: drive a local OpenAI-compatible server
@@ -12,9 +14,18 @@ Modifications, all under the same license:
   per-turn thinking budget enforced by the client).
 - src/articraft/agent/harness.py, src/articraft/agent/record.py: keep the last clean compile when a
   run reaches its turn limit.
+- src/articraft/agent/tools/: write refuses a small rewrite of a file the run already wrote.
 - tests/: tests for the above.
-- spark/: new; install, serve, demo, scoring and rendering scripts for an NVIDIA DGX Spark.
-- README.md: new. Articraft's own README is preserved as ARTICRAFT.md.
+- spark/: new; install, serve, demo, scoring, verification and rendering scripts for an NVIDIA DGX Spark.
+- README.md, CONTRIBUTING.md, SECURITY.md: new.
 
-The model weights are not part of this repository. RedHatAI/Qwen3.6-35B-A3B-NVFP4 is downloaded from
-Hugging Face under its own license.
+Third-party content included here:
+- spark/bench/dresser/reference.png is a crop of a photograph from Pixabay (https://pixabay.com),
+  used under the Pixabay Content License. It is the reference image every run in this repository was
+  given. See spark/bench/dresser/README.md.
+- Everything under spark/results/ is recorded output of runs described in the README, including
+  Python written by the model. It is evidence, not maintained source.
+
+The model weights are not part of this repository. RedHatAI/Qwen3.6-35B-A3B-NVFP4,
+Inferact/Qwen3.8-27B-NVFP4 and RadixArk/Qwen3.8-Flash-Next-NVFP4 are downloaded from Hugging Face,
+each under its own license.
