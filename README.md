@@ -83,7 +83,7 @@ checked against `SHA256SUMS` first, so a changed prompt cannot pass for a better
 
 ## What had to change
 
-A local model behind an OpenAI-compatible server behaves in ways a hosted API hides. Five changes,
+A local model behind an OpenAI-compatible server behaves in ways a hosted API hides. Six changes,
 each a commit on top of Articraft `ac7d688`:
 
 | commit | the problem on the Spark | the change |
@@ -93,6 +93,7 @@ each a commit on top of Articraft `ac7d688`:
 | Survive a local reasoning model | a thinking-only turn was a fatal error; a turn could generate ~49k tokens with no tool call; thinking could not be switched off; images piled up until the server refused the request | empty turns flow into the loop's normal handling; an output cap; chat-template arguments (`enable_thinking`); image-history pruning that always keeps the reference photo |
 | Bound the thinking per turn | with thinking on, Qwen reasoned for the full 32k-token cap three turns running without a tool call, and the harness stopped the run; vLLM's own `thinking_token_budget` is accepted and ignored on this server | the client closes the reasoning after N tokens (8,192 here) and asks for the action, and the model acts on the plan it has |
 | Keep the last clean compile at the turn limit | the local model keeps revising until the turn ceiling, and a run that had compiled a good revision recorded nothing | the last clean revision is kept and the record says it was salvaged (`max_turns_last_clean`) |
+| Edit, do not rewrite | the model replaced a whole 300-line file to change a few lines, turn after turn; five such `write` calls were most of one run's output growth, and every recorded draw had at least one | `write` refuses a small rewrite (under 40 % of lines changed) of a file this run already wrote and points at `edit`; measured on a Flash-Next pair, 2 of 2 coherent, the model complied on the next turn both times |
 
 Every new setting is off by default, so nothing changes for hosted providers. The tests are in
 `tests/test_openrouter_local.py`.

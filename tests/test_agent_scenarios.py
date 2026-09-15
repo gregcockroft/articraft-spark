@@ -87,6 +87,45 @@ def write_main(content: str) -> Response:
     return calls(tool_call("write", {"path": "main.py", "content": content}))
 
 
+def edit_main(*replacements: tuple[str, str]) -> Response:
+    """A repair through `edit`: `write` refuses a rewrite this small (tools/write.py)."""
+    return calls(
+        tool_call(
+            "edit",
+            {
+                "path": "main.py",
+                "edits": [{"old_text": old, "new_text": new} for old, new in replacements],
+            },
+        )
+    )
+
+
+IMPORT_TESTING = (
+    "from articraft.sdk import RigidBodyAssembly\n\n\ndef build_object_model",
+    "from articraft.sdk import RigidBodyAssembly, TestContext, TestReport\n\n\n\n"
+    "def build_object_model",
+)
+APPEND_RUN_TESTS = (
+    "object_model = build_object_model()\n",
+    "object_model = build_object_model()\n\n\ndef run_tests() -> TestReport:\n"
+    "    return TestContext(object_model).report()\n",
+)
+ADD_RUN_TESTS = (IMPORT_TESTING, APPEND_RUN_TESTS)
+DROP_RUN_TESTS = tuple((new, old) for old, new in ADD_RUN_TESTS)
+ALLOW_THE_OVERLAP = (
+    (
+        '    ctx.expect_no_collision("base", "pin", shape_a="body", shape_b="body")',
+        """    ctx.allow_overlap(
+        "base",
+        "pin",
+        reason="intentional press-fit embed",
+        shape_a="body",
+        shape_b="body",
+    )""",
+    ),
+)
+
+
 def compile_workspace() -> Response:
     return calls(tool_call("compile"))
 
@@ -115,7 +154,7 @@ def test_agent_repairs_a_missing_run_tests_with_real_signals(tmp_path: Path) -> 
     def repair(query: ModelQuery) -> Response:
         signals = compile_signals_shown(query.tool_outputs())
         assert signals and "[missing_run_tests]" in signals[-1]
-        return write_main(GOOD_MAIN_PY)
+        return edit_main(*ADD_RUN_TESTS)
 
     artifacts = run_scenario(
         "a box",
@@ -145,11 +184,9 @@ def test_repeat_failure_guidance_escalates_across_compiles(tmp_path: Path) -> No
         [
             write_main(BROKEN_NO_RUN_TESTS),
             compile_workspace(),
-            write_main(BROKEN_NO_RUN_TESTS),
             compile_workspace(),
-            write_main(BROKEN_NO_RUN_TESTS),
             compile_workspace(),
-            write_main(GOOD_MAIN_PY),
+            edit_main(*ADD_RUN_TESTS),
             compile_workspace(),
             text("done"),
         ],
@@ -283,11 +320,11 @@ def test_failure_streak_resets_after_a_successful_compile(tmp_path: Path) -> Non
         [
             write_main(BROKEN_NO_RUN_TESTS),
             compile_workspace(),
-            write_main(GOOD_MAIN_PY),
+            edit_main(*ADD_RUN_TESTS),
             compile_workspace(),
-            write_main(BROKEN_NO_RUN_TESTS),
+            edit_main(*DROP_RUN_TESTS),
             compile_workspace(),
-            write_main(GOOD_MAIN_PY),
+            edit_main(*ADD_RUN_TESTS),
             compile_workspace(),
             text("done"),
         ],
@@ -310,7 +347,7 @@ def test_overlap_allowance_flows_through_the_real_worker(tmp_path: Path) -> None
     def allow_the_overlap(query: ModelQuery) -> Response:
         signals = compile_signals_shown(query.tool_outputs())
         assert signals and "[real_overlap]" in signals[-1]
-        return write_main(OVERLAP_ALLOWED_MAIN)
+        return edit_main(*ALLOW_THE_OVERLAP)
 
     artifacts = run_scenario(
         "a press-fit pin",

@@ -49,6 +49,8 @@ class ToolContext:
     last_compile_failure_signature: str | None = None
     consecutive_compile_failures: int = 0
     exec_sessions: ExecSessions = field(default_factory=ExecSessions)
+    written_paths: set[Path] = field(default_factory=set)
+    """Workspace files this run has written, so a rewrite can be told from a first write."""
 
     def refresh_compile_freshness(self) -> bool:
         return (
