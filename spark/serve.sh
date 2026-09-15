@@ -22,6 +22,18 @@ mkdir -p "$LOG_DIR" "$HF_CACHE"
 [ "${MODEL_STATUS:-}" = tested ] || echo "note: $KEY is MODEL_STATUS=${MODEL_STATUS:-unset}; no result in spark/results/ was measured with it" >&2
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 
+# Some model files (e.g. qwen3.8-flash-next-nvfp4.env) document that this script does not serve
+# them - they need a different image/server entirely and only ship SERVE_MODEL/SERVE_REVISION/
+# SERVE_NAME for spark/cache.sh and spark/demo_dresser.sh to read. Fail with that pointer instead
+# of an unbound-variable crash from the vLLM arg list below.
+for v in SERVE_IMAGE SERVE_MAX_MODEL_LEN SERVE_GPU_UTIL SERVE_MAX_SEQS SERVE_TOOL_PARSER; do
+  if [ -z "${!v:-}" ]; then
+    echo "$KEY.env sets no $v: this model is not served by spark/serve.sh." >&2
+    echo "Read the top of $ENV_FILE for how to start its server, then run spark/demo_dresser.sh $KEY once it answers on :\${ARTICRAFT_SERVE_PORT:-8001}." >&2
+    exit 3
+  fi
+done
+
 # Serve offline when the pinned snapshot is already here. The cache path is the one spark/cache.sh
 # reports on, so the two agree by construction. An explicit HF_HUB_OFFLINE from the caller always wins,
 # in both directions: a caller who asks for 0 on a cached model gets 0.

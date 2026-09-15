@@ -48,3 +48,6 @@ What each one costs, measured on a DGX Spark with `du -sbL` over the pinned snap
 
 The built image has no registry to pull from: build it in that clone, or move it between machines with
 `docker save` and `docker load`.
+
+**`qwen3.8-flash-next-nvfp4` leaves very little headroom on a 121 GiB Spark** — see the memory note at
+the top of its `.env` file before running anything else alongside it.

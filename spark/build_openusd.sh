@@ -38,11 +38,18 @@ say "tag=$TAG jobs=$JOBS install=$INST"
 say "cmake $(cmake --version | head -1 | awk '{print $3}')  g++ $(g++ -dumpversion)  cores $(nproc)"
 
 # --- the interpreter: uv's managed CPython, because it has headers and the venv will use the same one --
-UVPY=$(uv python find 3.12 2>/dev/null)
+# --managed-python --no-project rules out picking up a project venv's interpreter by mistake; plain
+# `uv python find 3.12`, run from spark/install.sh with $ROOT/.venv already created (the normal
+# aarch64 path: install.sh always makes the venv before calling this), returns the *project's*
+# .venv/bin/python3 symlink instead - a real venv has no include/ tree of its own, so PYROOT below
+# never has Python.h and this aborted on every genuinely fresh box. --resolve-links is still needed
+# on top: even with --no-project, uv can return a symlink chain ending at .venv/bin/python3, and
+# only resolving it all the way reaches the managed CPython's own directory.
+UVPY=$(uv python find --managed-python --no-project --resolve-links 3.12 2>/dev/null)
 if [ -z "$UVPY" ] || ! [ -f "$(dirname "$(dirname "$UVPY")")/include/python3.12/Python.h" ]; then
   say "installing uv's managed CPython 3.12 (the system one has no headers)"
   uv python install 3.12 >>"$LOG" 2>&1
-  UVPY=$(uv python find 3.12 2>/dev/null)
+  UVPY=$(uv python find --managed-python --no-project --resolve-links 3.12 2>/dev/null)
 fi
 PYROOT=$(dirname "$(dirname "$UVPY")")
 say "python $UVPY"
