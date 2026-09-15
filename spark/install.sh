@@ -1,48 +1,70 @@
 #!/usr/bin/env bash
-# Install Articraft into its own micromamba environment. Written for an NVIDIA DGX Spark (aarch64);
-# works on x86_64 Linux too.
+# Install Articraft into a normal virtual environment with uv. Written for an NVIDIA DGX Spark
+# (aarch64); works on x86_64 Linux too.
 #
-#   spark/install.sh            # env "articraft" under ~/micromamba
-#   ARTICRAFT_ENV=other spark/install.sh
+#   spark/install.sh                 # .venv in the repo
+#   ARTICRAFT_VENV=/path/to/venv spark/install.sh
 #
-# Why conda at all: usd-core publishes no aarch64 Linux wheel, so on the Spark OpenUSD (pxr) comes
-# from conda-forge's `openusd`. Everything else is a normal pip install of this repository.
+# Everything is installed with uv. On x86_64 everything comes from PyPI, OpenUSD included. On aarch64 there is
+# one gap and one only: `usd-core` publishes no aarch64 wheel and no sdist at ANY version, so there is
+# nothing for uv to install. OpenUSD is portable C++, so this builds it - about four minutes, because
+# Articraft imports ten pxr modules and no imaging module at all, so Hydra, usdview, OpenSubdiv,
+# OpenImageIO, MaterialX, Alembic, Draco, OpenVDB and Embree are all off.
+#
+# No sudo. The usual blocker on Ubuntu is that the system python ships no headers; uv's managed CPython
+# does, and it is the same interpreter the venv uses, which is what makes the built module importable.
 set -euo pipefail
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
-ENV_NAME=${ARTICRAFT_ENV:-articraft}
-export MAMBA_ROOT_PREFIX=${MAMBA_ROOT_PREFIX:-$HOME/micromamba}
+VENV=${ARTICRAFT_VENV:-$ROOT/.venv}
 ARCH=$(uname -m)
+USD_PREFIX=${USD_PREFIX:-$HOME/.local/opt/openusd}
+USD_TAG=${USD_TAG:-v26.05}   # inside the usd-core range pyproject pins, so both arches run one version
 
 for tool in curl gcc g++; do
   command -v "$tool" >/dev/null || { echo "missing $tool (Ubuntu: sudo apt install build-essential curl)" >&2; exit 2; }
 done
 
-if command -v micromamba >/dev/null; then MM=$(command -v micromamba)
-elif [ -x "$HOME/.local/bin/micromamba" ]; then MM=$HOME/.local/bin/micromamba
+if command -v uv >/dev/null; then UV=$(command -v uv)
+elif [ -x "$HOME/.local/bin/uv" ]; then UV=$HOME/.local/bin/uv
 else
-  case $ARCH in aarch64) PLAT=linux-aarch64 ;; x86_64) PLAT=linux-64 ;; *) echo "unsupported arch $ARCH" >&2; exit 2 ;; esac
-  echo "installing micromamba to ~/.local/bin"
-  mkdir -p "$HOME/.local"
-  curl -Ls "https://micro.mamba.pm/api/micromamba/$PLAT/latest" | tar -xj -C "$HOME/.local" bin/micromamba
-  MM=$HOME/.local/bin/micromamba
+  echo "installing uv to ~/.local/bin"
+  curl -LsSf https://astral.sh/uv/install.sh | sh
+  UV=$HOME/.local/bin/uv
 fi
 
-PKGS=(python=3.12)
-[ "$ARCH" = aarch64 ] && PKGS+=(openusd=26.08)   # x86_64 gets usd-core from PyPI instead
-if [ -x "$MAMBA_ROOT_PREFIX/envs/$ENV_NAME/bin/python" ]; then
-  echo "env $ENV_NAME exists, reusing it"
+# --- the venv and every Python dependency ----------------------------------------------------------
+# Running this script twice is a no-op here, not an error: `uv venv` exits 2 on a venv that already
+# exists ("A virtual environment already exists at: .venv"), and under `set -e` that aborted the whole
+# install before `uv sync` ever ran. Reuse the venv and let the sync below reconcile its dependencies.
+if [ -f "$VENV/pyvenv.cfg" ]; then
+  echo "reusing the virtual environment at $VENV"
 else
-  "$MM" create -y -n "$ENV_NAME" -c conda-forge "${PKGS[@]}"
+  "$UV" venv --python 3.12 "$VENV"
 fi
-PY=$MAMBA_ROOT_PREFIX/envs/$ENV_NAME/bin/python
-"$PY" -m pip install --upgrade pip >/dev/null
-"$PY" -m pip install -e "$ROOT"
+(cd "$ROOT" && VIRTUAL_ENV=$VENV "$UV" sync --group dev --active)
 
-"$PY" - <<'PYEOF'
+# --- OpenUSD: from PyPI on x86_64, built here on aarch64 -------------------------------------------
+if [ "$ARCH" = aarch64 ]; then
+  INST=$USD_PREFIX/$USD_TAG
+  if [ -d "$INST/lib/python/pxr" ]; then
+    echo "OpenUSD $USD_TAG already built at $INST"
+  else
+    command -v cmake >/dev/null || { echo "missing cmake (Ubuntu: sudo apt install cmake)" >&2; exit 2; }
+    echo "building OpenUSD $USD_TAG for aarch64 - no wheel exists for it, so it is built (~4 min)"
+    USD_ROOT=$USD_PREFIX USD_TAG=$USD_TAG bash "$ROOT/spark/build_openusd.sh"
+  fi
+  # ONE path entry to an installed library - the standard venv mechanism, not a copied library. The
+  # install tree is self-locating through RUNPATH, so no LD_LIBRARY_PATH is needed.
+  SITE=$("$VENV/bin/python" -c 'import sysconfig; print(sysconfig.get_paths()["purelib"])')
+  echo "$INST/lib/python" > "$SITE/openusd.pth"
+  echo "OpenUSD on the venv's path via $SITE/openusd.pth"
+fi
+
+"$VENV/bin/python" - <<'PYEOF'
 from pxr import Usd
 import articraft
 print("OpenUSD", ".".join(map(str, Usd.GetVersion())), "| articraft importable")
 PYEOF
 echo
-echo "installed: $MAMBA_ROOT_PREFIX/envs/$ENV_NAME/bin/articraft"
+echo "installed: $VENV/bin/articraft"
 command -v docker >/dev/null || echo "note: docker is not installed; spark/serve.sh needs it (with the NVIDIA container toolkit)"

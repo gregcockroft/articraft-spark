@@ -7,7 +7,7 @@
 # Needs Blender on PATH (or BLENDER=/path/to/blender) and the articraft env's python (for pxr and PIL).
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
-PY=${ARTICRAFT_PYTHON:-${MAMBA_ROOT_PREFIX:-$HOME/micromamba}/envs/${ARTICRAFT_ENV:-articraft}/bin/python}
+PY=${ARTICRAFT_PYTHON:-${ARTICRAFT_VENV:-$(cd "$(dirname "$0")/../.." && pwd)/.venv}/bin/python}
 BLENDER=${BLENDER:-$(command -v blender || true)}
 [ -x "$BLENDER" ] || { echo "Blender not found: set BLENDER=/path/to/blender" >&2; exit 2; }
 TARGET=${1:?usage: render.sh <run-dir | file.usdz> [--video]}

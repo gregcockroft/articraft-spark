@@ -49,7 +49,7 @@ set by hand; turning a swapped asset to face the room automatically is still ope
 On a DGX Spark with Docker and the NVIDIA container toolkit:
 
 ```shell
-spark/install.sh                             # micromamba env: Python 3.12, OpenUSD from conda-forge, this repo
+spark/install.sh                             # uv venv: Python 3.12, this repo, and OpenUSD; re-runnable
 spark/serve.sh qwen3.6-35b-a3b-nvfp4         # vLLM in Docker on :8001; the first start downloads 24 GB of weights
 spark/demo_dresser.sh qwen3.6-35b-a3b-nvfp4  # build the nine-drawer dresser from one photo, score it, render it
 ```
@@ -66,7 +66,7 @@ each a commit on top of Articraft `ac7d688`:
 
 | commit | the problem on the Spark | the change |
 |---|---|---|
-| Build on aarch64 Linux | `usd-core` has no aarch64 Linux wheel, so Articraft would not install | OpenUSD comes from conda-forge's `openusd` on aarch64 |
+| Build on aarch64 Linux | `usd-core` publishes no aarch64 wheel and no sdist at any version, so Articraft would not install | `spark/build_openusd.sh` builds OpenUSD v26.05 from source in ~4 min (no imaging; no sudo) |
 | Drive a local OpenAI-compatible server | three separate layers assumed openrouter.ai: the endpoint, a required API key, and a text-only CLI | a base URL, a key only where one is needed, and opt-in image input for vision models |
 | Survive a local reasoning model | a thinking-only turn was a fatal error; a turn could generate ~49k tokens with no tool call; thinking could not be switched off; images piled up until the server refused the request | empty turns flow into the loop's normal handling; an output cap; chat-template arguments (`enable_thinking`); image-history pruning that always keeps the reference photo |
 | Bound the thinking per turn | with thinking on, Qwen reasoned for the full 32k-token cap three turns running without a tool call, and the harness stopped the run; vLLM's own `thinking_token_budget` is accepted and ignored on this server | the client closes the reasoning after N tokens (8,192 here) and asks for the action, and the model acts on the plan it has |

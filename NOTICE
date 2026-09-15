@@ -1,11 +1,11 @@
 articraft-spark
-Copyright 2026 Greg Cockroft
+Copyright 2026 The articraft-spark contributors
 
 This is a modified version of Articraft (https://github.com/articraftresearch/Articraft),
 Copyright its authors, licensed under the Apache License, Version 2.0 (see LICENSE).
 
 Modifications, all under the same license:
-- pyproject.toml: OpenUSD from conda-forge on aarch64 Linux.
+- pyproject.toml: OpenUSD is built from source on aarch64 Linux (spark/build_openusd.sh); no aarch64 wheel exists.
 - src/articraft/agent/provider/openrouter.py, src/articraft/settings.py, src/articraft/api.py,
   src/articraft/app.py, .env.example, docs/providers.md: drive a local OpenAI-compatible server
   (base URL, optional key, image input, output cap, chat-template arguments, image pruning, and a

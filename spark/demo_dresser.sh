@@ -21,7 +21,7 @@ set -a
 . "$ENV_FILE"
 set +a
 
-PREFIX=${MAMBA_ROOT_PREFIX:-$HOME/micromamba}/envs/${ARTICRAFT_ENV:-articraft}
+PREFIX=${ARTICRAFT_VENV:-$(cd "$(dirname "$0")/.." && pwd)/.venv}
 ART=$PREFIX/bin/articraft
 PY=$PREFIX/bin/python
 PORT=${ARTICRAFT_SERVE_PORT:-8001}

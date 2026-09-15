@@ -1,7 +1,7 @@
 """Does every drawer carry a handle that stands proud of its front? Reads the USDZ physics prims.
 
-Needs pxr, so run with the articraft conda python:
-    $HOME/micromamba/envs/articraft/bin/python handles.py <run-dir | file.usdz>
+Needs pxr, so run with the project venv:
+    .venv/bin/python spark/handles.py <run-dir | file.usdz>
 
 For each prismatic joint, body1 is the drawer and the joint's world axis is the opening direction.
 A drawer passes when at least one of its shapes named like a handle (handle/pull/knob) reaches
