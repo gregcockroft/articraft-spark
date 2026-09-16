@@ -28,30 +28,38 @@ response. Every revision either run produced passes all three automated checks �
 `spark/handles.py` 9/9 proud, and a `pxr` placement read putting 9/9 drawers inside the carcass. The sample is
 [`spark/results/dresser-flash-next-medium/`](spark/results/dresser-flash-next-medium/).
 
-**And a second local model cleared the same bar the same night.** `Inferact/Qwen3.8-27B-NVFP4` — **~26 GB of
-weights on the pinned upstream vLLM image, no patched build** — produced a coherent dresser in **39 turns and
-1 h 34 m**: [`spark/results/dresser-qwen3.8-27b-medium/`](spark/results/dresser-qwen3.8-27b-medium/). It decodes
-at **half** Flash-Next's speed (8.4 against 16.2 tok/s) and still finishes sooner, because it spends 45,547
-output tokens where Flash-Next spends 109,283. **Run time here is output tokens ÷ decode rate**, and in all four
-draws 95–98 % of the wall was the model emitting tokens.
-
 **The setting is the whole difference, and the cheap-looking one is not cheap.** At `reasoning_effort: low`
 Flash-Next ran 98 turns without once calling `compile` and produced nothing — and spent **51 % more output
 tokens** (136,463) doing so.
 
-**What the checks do not see.** A human review of all four sheets rated them *"very good"*, *"good but feet missing
-at bottom"*, *"good but top and sides have underlying geometry slightly pushing through"*, *"poor — missing
-cavity on drawers"*. **All four passed `score.py`, `handles.py` and the placement read identically.** Missing
-feet and surfaces punching through another part are not something any check here looks at. Two of four draws
-would be called good by a person; the automated legs cannot tell you which two.
+**What the checks do not see, and this is the most important paragraph on the page.** Six recorded draws
+have now been shown to a person. His words: *"very good"*, *"good but feet missing at bottom"*, *"good but
+top and sides have underlying geometry slightly pushing through"*, *"poor — missing cavity on drawers"*,
+and on the two newest, both *"medium quality … not complete top and sides and drawers are not a cavity"*.
+**Every one of those six passed `score.py`, `handles.py` and the placement read identically.** Missing
+feet, surfaces punching through another part, and a drawer that is a solid block rather than a box are
+not something any check here looks at. **The automated legs are a floor: they can show you an object is
+broken, and they cannot tell you it is good.**
 
 [Articraft](https://github.com/articraftresearch/Articraft) is an agent that turns a prompt or a
 reference photo into a posable 3D object. A language model writes Python against Articraft's CAD SDK;
 Articraft compiles it, checks it, and exports a USDZ with rigid bodies and joints. Upstream expects a
-frontier API behind that loop. This fork runs the same loop against a model served on the Spark itself:
-[`RedHatAI/Qwen3.6-35B-A3B-NVFP4`](https://huggingface.co/RedHatAI/Qwen3.6-35B-A3B-NVFP4), a 35B
-mixture-of-experts with 3B active parameters, quantized to NVFP4 for Blackwell and served by vLLM on the
-GB10.
+frontier API behind that loop. **This fork runs the same loop against a model served on the Spark
+itself**, and the commands below run
+[`RadixArk/Qwen3.8-Flash-Next-NVFP4`](https://huggingface.co/RadixArk/Qwen3.8-Flash-Next-NVFP4) — the
+model the results above were measured on. `spark/serve.sh` builds and starts its server for you.
+
+**Two things it costs, before you start**, because a page that buries them wastes your afternoon:
+
+- **135 GB of weights must already be in your Hugging Face cache.** `spark/cache.sh` checks first and
+  **aborts rather than fetching**; it tells you the exact size and where it would go.
+- **The first build pulls a ~20 GB base image** (measured: 20,629,124,565 bytes) and patches it locally.
+  It is a public image, fetched anonymously, once.
+- While this server runs it leaves about **12 GiB free** on a 121 GB Spark. Budget for it.
+
+**Smaller, and it also fits:** [`RedHatAI/Qwen3.6-35B-A3B-NVFP4`](https://huggingface.co/RedHatAI/Qwen3.6-35B-A3B-NVFP4)
+(~25 GB, 35B mixture-of-experts with 3B active) is what this fork was first built against, and the
+*first results* section below is its. Everything here works with either: the model is one argument.
 
 ![A nine-drawer dresser built by Qwen3.6 on a DGX Spark from one photo, its drawers opening one after another](spark/results/dresser_demo.gif)
 
@@ -71,10 +79,20 @@ set by hand; turning a swapped asset to face the room automatically is still ope
 On a DGX Spark with Docker and the NVIDIA container toolkit:
 
 ```shell
-spark/install.sh                             # uv venv: Python 3.12, this repo, and OpenUSD; re-runnable
-spark/serve.sh qwen3.6-35b-a3b-nvfp4         # vLLM in Docker on :8001; the first start downloads 24 GB of weights
-spark/demo_dresser.sh qwen3.6-35b-a3b-nvfp4  # build the nine-drawer dresser from one photo, score it, render it
+spark/install.sh                                  # uv venv: Python 3.12, this repo, and OpenUSD; re-runnable
+spark/cache.sh qwen3.8-flash-next-nvfp4           # what it needs and whether you have it; downloads nothing
+spark/serve.sh qwen3.8-flash-next-nvfp4           # clones + builds the patched server, starts it on :8001, waits
+spark/demo_dresser.sh qwen3.8-flash-next-nvfp4    # build the nine-drawer dresser from one photo, score it, render it
 ```
+
+`serve.sh` is one command for either model, but they get there differently: Qwen3.6 runs under stock
+vLLM, and Flash-Next does not fit on one Spark that way (135 GB of weights), so `serve.sh` hands it to
+[`spark/serve_external.sh`](spark/serve_external.sh), which clones
+[blazux/qwen3.8-Flash-DGX](https://github.com/blazux/qwen3.8-Flash-DGX) at the commit the model file
+pins, builds its image if you have none, and starts it with the settings the published runs used. That
+project is driven, never vendored: if your clone is not at the pinned commit, or has been edited, the
+script stops rather than serving something the numbers do not describe. First start, measured cold on a
+box with no container and no built image: **781 s**, most of it loading ~76 GiB onto the card.
 
 The demo sends the one-paragraph prompt in [`spark/bench/dresser/prompt_demo.txt`](spark/bench/dresser/prompt_demo.txt)
 and the photo beside it (`PROMPT=frozen` sends the short benchmark prompt instead), waits for the agent
@@ -87,7 +105,7 @@ checked against `SHA256SUMS` first, so a changed prompt cannot pass for a better
 `demo_dresser.sh` above in one command, and never downloads weights silently:
 
 ```shell
-./clone_and_demo.sh qwen3.6-35b-a3b-nvfp4 ~/.cache/huggingface   # <model-key> <hf-cache-dir> [demo|frozen]
+./clone_and_demo.sh qwen3.8-flash-next-nvfp4 ~/.cache/huggingface   # <model-key> <hf-cache-dir> [demo|frozen]
 ```
 
 It's standalone, so you don't need a checkout first — fetch just the script:
@@ -95,7 +113,7 @@ It's standalone, so you don't need a checkout first — fetch just the script:
 ```shell
 curl -O https://raw.githubusercontent.com/gregcockroft/articraft-spark/main/spark/clone_and_demo.sh
 chmod +x clone_and_demo.sh
-./clone_and_demo.sh qwen3.6-35b-a3b-nvfp4 /path/to/your/hf-cache
+./clone_and_demo.sh qwen3.8-flash-next-nvfp4 /path/to/your/hf-cache
 ```
 
 Run it from an empty folder — it clones this repo into `./articraft-spark` under wherever you run it
@@ -154,7 +172,12 @@ turn 62.**
 **What none of it checks is whether the object looks like the photo.** No script here does; that is
 what the sheets and the human reads are for, and it is the limit that decided four runs above.
 
-## Results
+## First results, Qwen3.6, 2026-09-10
+
+**These are the first runs this fork made, on `qwen3.6-35b-a3b-nvfp4`, and they are kept rather than
+replaced: they are the line everything since is measured against**, including the two failure modes that
+shaped the harness. The Flash-Next results at the top of this page are newer and were measured the same
+way.
 
 Measured on one DGX Spark (GB10, 128 GB unified memory) on 2026-09-10. Warm decode on this server is
 about 27 tok/s at a 57k-token prompt.
@@ -206,8 +229,15 @@ cp spark/models/qwen3.6-35b-a3b-nvfp4.env spark/models/my-model.env   # edit it
 spark/serve.sh my-model && spark/demo_dresser.sh my-model
 ```
 
-`qwen3.8-27b.env` is there as the next slot and is marked untested. What decides whether a model can
-drive Articraft at all is whether its tool calls parse, and whether it acts before its output cap.
+What decides whether a model can drive Articraft at all is whether its tool calls parse, and whether it
+acts before its output cap. The files here:
+
+| key | weights | what it has done |
+|---|---|---|
+| `qwen3.8-flash-next-nvfp4` | ~135 GB + a ~20 GB image | the results at the top of this page. Needs the patched server `spark/serve_external.sh` builds |
+| `qwen3.6-35b-a3b-nvfp4` | ~25 GB | the *first results* section. Stock vLLM |
+| `qwen3.8-27b-inferact` | ~26 GB | **runs on the pinned upstream image with no patched build, decodes at ~8.5 tok/s — and of its four recorded draws, a person called one coherent and rated three defective**, while **every automated check passed all four**. The one that worked is [`spark/results/dresser-qwen3.8-27b-medium/`](spark/results/dresser-qwen3.8-27b-medium/). It is the cheapest thing here to run and the least likely to give you an object you would keep |
+| `qwen3.8-27b` | ~54 GB, unpinned | a slot for the BF16 release. Untested, and it resolves `main` at the hub rather than a revision |
 
 ## How it fits together
 
@@ -215,7 +245,7 @@ drive Articraft at all is whether its tool calls parse, and whether it acts befo
 flowchart LR
   photo[reference photo + prompt] --> agent
   subgraph spark[DGX Spark]
-    agent[Articraft agent loop] -- OpenAI chat API --> vllm[vLLM on GB10<br/>Qwen3.6-35B-A3B NVFP4]
+    agent[Articraft agent loop] -- OpenAI chat API --> vllm[vLLM on GB10<br/>Qwen3.8-Flash-Next NVFP4<br/>or Qwen3.6-35B-A3B]
     vllm -- tool calls --> agent
     agent -- writes main.py --> sdk[Articraft CAD SDK<br/>build123d]
     sdk --> compile[compile + checks]
@@ -236,8 +266,14 @@ flowchart LR
   and none from the short one. Both prompts are in `spark/bench/dresser/`.
 - **The last clean revision is not always the best.** In the demo run the final revision moved the drawer fronts
   past the handles; the checks in `spark/` are how the good revision was picked.
-- **The geometry checks are narrow.** `score.py` checks sliding joints and `handles.py` checks handles. Hinges,
-  and whether the object resembles the photo, still need a person looking at the render.
+- **The geometry checks are narrow, and nothing here checks resemblance.** `score.py` checks sliding
+  joints, `handles.py` checks handles, and `spark/verify_results.sh` re-derives every published number
+  from the committed USDZ — **and none of it looks at whether the object resembles the photo, or whether
+  a drawer is a box rather than a solid block.** Six draws have passed every automated check; a person
+  rated four of the six defective. Hinges, and resemblance, need a person looking at the render.
+- **Flash-Next needs the weights already cached and a ~20 GB image pull.** 135 GB in your Hugging Face
+  cache before you start (`spark/cache.sh` aborts rather than fetching), plus the base image, once. On a
+  121 GB Spark this server alone leaves about 12 GiB free, so budget for anything else on the box.
 
 ## Credits
 
