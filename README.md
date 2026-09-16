@@ -30,7 +30,9 @@ response. Every revision either run produced passes all three automated checks �
 
 **The setting is the whole difference, and the cheap-looking one is not cheap.** At `reasoning_effort: low`
 Flash-Next ran 98 turns without once calling `compile` and produced nothing — and spent **51 % more output
-tokens** (136,463) doing so.
+tokens** (136,463) doing so. **`medium` is better, not a guarantee: it is 2 of 3 recorded draws** — the two
+above, and one on 2026-09-16 that ran the full 100 turns and called `compile` **once**, at turn 72, which
+failed. Same model, same settings, one command from a fresh clone.
 
 **What the checks do not see, and this is the most important paragraph on the page.** Six recorded draws
 have now been shown to a person. His words: *"very good"*, *"good but feet missing at bottom"*, *"good but
