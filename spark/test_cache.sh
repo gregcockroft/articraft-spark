@@ -42,6 +42,14 @@ EOF
 printf '#!/bin/sh\nexit 1\n' > "$STUB/curl"     # serve.sh's readiness poll must fail fast, not wait
 chmod +x "$STUB/docker" "$STUB/curl"
 
+# A git repo that is NOT the commit any model file pins. The keys served by an external project
+# (spark/serve_external.sh) check their clone before they start anything, and this fixture makes that
+# check fail on purpose: what is under test here is the offline decision, which is printed first, and
+# pointing at this instead of a real clone keeps the case local - nothing is cloned or fetched.
+EXT_CLONE=$TMP/not_the_pin; mkdir -p "$EXT_CLONE"
+git -C "$EXT_CLONE" init -q
+git -C "$EXT_CLONE" -c user.email=t@example.com -c user.name=t commit -q --allow-empty -m "not the pin"
+
 # A cache with the pinned snapshot of one key in it, and one without.
 KEY_PRESENT=qwen3.8-27b-inferact
 REPO=$(  (set -a; . "$HERE/models/$KEY_PRESENT.env"; echo "$SERVE_MODEL") )
@@ -141,7 +149,7 @@ for key in $(cd "$HERE/models" && ls ./*.env | sed 's|^\./||; s/\.env$//'); do
   serve_out=$TMP/agree_serve_$key.txt
   STUB_LOG=$TMP/docker_agree.log STUB_IMAGE_ID=sha256:stubimage \
     env -u HF_HUB_OFFLINE PATH="$STUB:$PATH" HF_CACHE="$HOME/.cache/huggingface" \
-    ARTICRAFT_SERVE_LOGS="$TMP/serve" "$HERE/serve.sh" "$key" > "$serve_out" 2>&1
+    SERVE_EXTERNAL_DIR="$EXT_CLONE" ARTICRAFT_SERVE_LOGS="$TMP/serve" "$HERE/serve.sh" "$key" > "$serve_out" 2>&1
   cache_says=$(grep -q "present   snapshot $repo" "$out" && echo present || echo missing)
   serve_says=$(grep -q 'HF_HUB_OFFLINE=1' "$serve_out" && echo present || echo missing)
   eq "$key: cache.sh and serve.sh agree on the snapshot" "$cache_says" "$serve_says"

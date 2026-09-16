@@ -22,10 +22,17 @@ mkdir -p "$LOG_DIR" "$HF_CACHE"
 [ "${MODEL_STATUS:-}" = tested ] || echo "note: $KEY is MODEL_STATUS=${MODEL_STATUS:-unset}; no result in spark/results/ was measured with it" >&2
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 
-# Some model files (e.g. qwen3.8-flash-next-nvfp4.env) document that this script does not serve
-# them - they need a different image/server entirely and only ship SERVE_MODEL/SERVE_REVISION/
-# SERVE_NAME for spark/cache.sh and spark/demo_dresser.sh to read. Fail with that pointer instead
-# of an unbound-variable crash from the vLLM arg list below.
+# One model needs a different server entirely: Flash-Next is 135 GB of weights and stock vLLM cannot
+# fit it on one 121 GB Spark. A model file that pins SERVE_EXTERNAL_* names the project that can, and
+# spark/serve_external.sh drives it - a separate launcher, because it shares no argument with the vLLM
+# one below. Same contract from the caller's side: it exits 0 when :$PORT answers.
+if [ -n "${SERVE_EXTERNAL_REPO:-}" ]; then
+  exec "$HERE/serve_external.sh" "$KEY"
+fi
+
+# A model file that pins neither a vLLM image nor an external server cannot be started at all - some
+# ship only SERVE_MODEL/SERVE_REVISION/SERVE_NAME for spark/cache.sh and spark/demo_dresser.sh to
+# read. Fail with that pointer instead of an unbound-variable crash from the vLLM arg list below.
 for v in SERVE_IMAGE SERVE_MAX_MODEL_LEN SERVE_GPU_UTIL SERVE_MAX_SEQS SERVE_TOOL_PARSER; do
   if [ -z "${!v:-}" ]; then
     echo "$KEY.env sets no $v: this model is not served by spark/serve.sh." >&2
