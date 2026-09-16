@@ -35,6 +35,12 @@ mkdir -p "$LOG_DIR" "$HF_CACHE"
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 command -v git >/dev/null || { echo "git is required, to clone $SERVE_EXTERNAL_REPO at its pin" >&2; exit 2; }
 
+# A backgrounded follower outlives this script, so it must not inherit the caller's file descriptors:
+# `flock <lock> spark/serve.sh <key>` otherwise leaves the lock HELD FOR THE CONTAINER'S LIFE by a
+# ppid-1 process that `fuser` reports as "docker", which reads like the daemon and is not. Close every
+# fd above 2 in the subshell the tail is started from.
+closefds() { local fd n; for fd in /proc/$BASHPID/fd/*; do n=${fd##*/}; [ "$n" -gt 2 ] && eval "exec $n>&-"; done 2>/dev/null; return 0; }
+
 # --- the weights ----------------------------------------------------------------------------------
 # Their scripts/serve.sh bind-mounts the cache and runs with HF_HUB_OFFLINE=1, so a missing snapshot
 # surfaces as "checkpoint not found" from inside their script. Say it here instead, with the size.
@@ -108,7 +114,7 @@ case "$GOT" in
   *) echo "warning: $NAME is serving '$GOT', not the pinned SERVE_REVISION=$SERVE_REVISION" >&2 ;;
 esac
 LOG=$LOG_DIR/$KEY.log
-setsid nohup docker logs -f "$NAME" > "$LOG" 2>&1 < /dev/null & disown
+( closefds; exec setsid nohup docker logs -f "$NAME" > "$LOG" 2>&1 < /dev/null ) & disown
 echo "serving $SERVE_MODEL as '$SERVE_NAME' on :$PORT from $SERVE_EXTERNAL_TAG  (log: $LOG)"
 
 # The same readiness contract as spark/serve.sh:79-85, deliberately duplicated rather than shared:

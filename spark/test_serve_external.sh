@@ -21,7 +21,7 @@ has() { if grep -qF -- "$2" "$3"; then ok "$1"; else bad "$1 (no '$2' in $3)"; f
 hasnt() { if grep -qF -- "$2" "$3"; then bad "$1 (found '$2' in $3)"; else ok "$1"; fi; }
 # The same floor spark/test_cache.sh keeps, and for the same reason: a case that stops running must
 # not read as a clean pass. Raise it deliberately when cases are added.
-CHECKS_MIN=${CHECKS_MIN:-51}
+CHECKS_MIN=${CHECKS_MIN:-58}
 
 # --- stubs ----------------------------------------------------------------------------------------
 STUB=$TMP/bin; mkdir -p "$STUB"
@@ -40,7 +40,11 @@ case "$1 $2" in
     exit 0 ;;
 esac
 case "$1" in
-  ps) echo "${STUB_PS:-}" ;;
+  ps)   echo "${STUB_PS:-}" ;;
+  # `docker logs -f` blocks for the container's life. /bin/sleep by absolute path on purpose: the
+  # stub `sleep` beside this file is the instant one their script's own `sleep 8` must hit, and a
+  # follower that exits at once cannot show whether it was holding a lock.
+  logs) exec /bin/sleep "${STUB_LOGS_SLEEP:-0}" ;;
 esac
 exit 0
 EOF
@@ -221,6 +225,45 @@ eq "spark/serve.sh $REAL_KEY: exit code" "$?" 4
 hasnt "it no longer refuses the model" "not served by spark/serve.sh" "$out"
 has "it reached serve_external.sh's clone check" "not the pinned $PIN" "$out"
 has "and it said the weights are already here" "so this serve needs no network" "$out"
+
+echo "=== the lock: neither launcher may leave a flock held by the log follower it backgrounds ==="
+# docs/TRACKS.md, 2026-09-12: `setsid nohup docker logs -f` inherits the caller's flock descriptors, so
+# `flock <lock> spark/serve.sh <key>` held the lock for the CONTAINER'S life, by a ppid-1 process that
+# fuser reports as "docker". It was fixed in the switch scripts and, until this commit, nowhere here.
+# The stub follower sleeps for this case, so a leaked descriptor is the difference between a lock that
+# can be taken again and one that cannot - which is exactly what the defect looked like on the box.
+LOCK=$TMP/lock; : > "$LOCK"
+for launcher in serve.sh serve_external.sh; do
+  key=$REAL_KEY; [ "$launcher" = serve_external.sh ] && key=$REAL_KEY
+  out=$TMP/lock_$launcher.txt; log=$TMP/lock_$launcher.log; : > "$log"
+  env PATH="$STUB:$PATH" STUB_LOG="$log" STUB_IMAGES="$TAG" STUB_CURL_RC=0 STUB_LOGS_SLEEP=5423 \
+      STUB_CMD0="$SNAP_IN" HF_CACHE="$FULL" SERVE_EXTERNAL_DIR="$UPSTREAM" \
+      ARTICRAFT_SERVE_LOGS="$TMP/logs" \
+      flock "$LOCK" "$HERE/$launcher" "$key" > "$out" 2>&1
+  rc=$?
+  # The follower is started detached, so give it a moment to appear before anything is concluded from
+  # its absence; a case that races is a case that lies in one direction or the other.
+  follower=""
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    follower=$(pgrep -f "[s]leep 5423" | head -1); [ -n "$follower" ] && break; sleep 0.2
+  done
+  if flock -n "$LOCK" true; then ok "$launcher returned (exit $rc) and the lock is free"
+  else bad "$launcher left the lock held: $(fuser -v "$LOCK" 2>&1 | tail -1)"; fi
+  # Without a LIVE follower this case proves nothing: one that had exited would free the lock however
+  # its descriptors were handled. And the lock's absence is read from the follower's own fd table,
+  # which is where the defect actually lived - not inferred from the lock being takeable.
+  if [ -n "$follower" ]; then
+    ok "$launcher: the log follower (pid $follower) is still running, so the lock was freed by the fix and not by its exit"
+    eq "$launcher: and its own fd table holds no lock" \
+       "$(ls -l /proc/$follower/fd 2>/dev/null | grep -c "$LOCK")" 0
+  else
+    bad "$launcher: no follower is running; this case cannot see the defect"
+    sed 's/^/      | /' "$out" | tail -5
+  fi
+  [ -n "$follower" ] && kill "$follower" 2>/dev/null
+done
+eq "both launchers close inherited descriptors before backgrounding it" \
+   "$(grep -lc 'closefds' "$HERE/serve.sh" "$HERE/serve_external.sh" | wc -l)" 2
 
 total=$((pass + fail))
 if [ "$total" -lt "$CHECKS_MIN" ]; then

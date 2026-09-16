@@ -19,6 +19,12 @@ HF_CACHE=${HF_CACHE:-$HOME/.cache/huggingface}
 LOG_DIR=${ARTICRAFT_SERVE_LOGS:-$HERE/../runs/serve}
 mkdir -p "$LOG_DIR" "$HF_CACHE"
 
+# A backgrounded follower outlives this script, so it must not inherit the caller's file descriptors:
+# `flock <lock> spark/serve.sh <key>` otherwise leaves the lock HELD FOR THE CONTAINER'S LIFE by a
+# ppid-1 process that `fuser` reports as "docker", which reads like the daemon and is not. Close every
+# fd above 2 in the subshell the tail is started from.
+closefds() { local fd n; for fd in /proc/$BASHPID/fd/*; do n=${fd##*/}; [ "$n" -gt 2 ] && eval "exec $n>&-"; done 2>/dev/null; return 0; }
+
 [ "${MODEL_STATUS:-}" = tested ] || echo "note: $KEY is MODEL_STATUS=${MODEL_STATUS:-unset}; no result in spark/results/ was measured with it" >&2
 command -v docker >/dev/null || { echo "docker is required" >&2; exit 2; }
 
@@ -80,7 +86,7 @@ docker run -d --name "$NAME" --gpus all --ipc=host -p "$PORT:8000" \
   -v "$HF_CACHE:/root/.cache/huggingface" \
   "$SERVE_IMAGE" "${args[@]}" >/dev/null
 LOG=$LOG_DIR/$KEY.log
-setsid nohup docker logs -f "$NAME" > "$LOG" 2>&1 < /dev/null & disown
+( closefds; exec setsid nohup docker logs -f "$NAME" > "$LOG" 2>&1 < /dev/null ) & disown
 echo "serving $SERVE_MODEL as '$SERVE_NAME' on :$PORT  (log: $LOG)"
 
 printf 'waiting for the server'
