@@ -10,6 +10,15 @@
 #
 # Output: runs/spark-demo/<run-id>/ with the USDZ, the conversation, score.txt and render/sheet.png.
 # Expect 30-120 minutes on a DGX Spark; the agent works in up to ARTICRAFT_MAX_TURNS turns.
+#
+# Exit codes, which used to be unstated - and a thing nobody states is a thing nobody notices breaking:
+#   0   the object was built and scored, and the render (if Blender was found) wrote its sheet
+#   2   this script could not start: no model file, no articraft, no server on the port, bad PROMPT
+#   3   the frozen dresser inputs do not match spark/bench/dresser/SHA256SUMS
+#   4   the object scored PASS but THE RENDER FAILED, so there is no sheet to look at
+#   other   spark/score.py's verdict on the object
+# A failed render always prints a line on stderr, including when a non-zero score keeps the exit code:
+# the code can only carry one of the two facts, and the line is what makes the other one visible.
 set -uo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
 ROOT=$(cd "$HERE/.." && pwd)
@@ -59,7 +68,19 @@ RUN=$(ls -dt "$OUT"/*/ | head -1)
 "$PY" "$HERE/score.py" "$RUN" --ask "$BENCH/ask.json" | tee "$RUN/score.txt"
 verdict=${PIPESTATUS[0]}
 if [ -n "${BLENDER:-}" ] || command -v blender >/dev/null; then
+  # The render's status is not decoration: this script's own docs promise a sheet, and it used to throw
+  # the status away and exit with the scorer's verdict, so a failed render reported success.
   "$HERE/render/render.sh" "$RUN" ${VIDEO:+--video}
+  render_rc=$?
+  if [ "$render_rc" != 0 ]; then
+    echo "RENDER FAILED (exit $render_rc): no sheet was written for $RUN." >&2
+    if [ "$verdict" = 0 ]; then
+      echo "  the object scored PASS; this script exits 4 to say the sheet is missing." >&2
+      verdict=4
+    else
+      echo "  the object also failed scoring, so the exit code stays $verdict - the more important fact." >&2
+    fi
+  fi
 else
   echo "no Blender: skipping the render (set BLENDER=/path/to/blender for render/sheet.png)"
 fi
