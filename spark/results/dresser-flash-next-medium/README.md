@@ -16,6 +16,29 @@ tok/s** against a decode median of 16.2, so **98 % of the wall was the model emi
 **The sample is revision `0000`, the run's only revision — and `record.json` names that same file as the run's
 result.** `result/usdz/0000.usdz`, `score.txt`, `handles.txt`, `sheet.png`, `stats.json`, `main_final_rev0000.py`.
 
+### The run's own log, and checking these numbers against it
+
+`conversation.jsonl` is the turn-by-turn record the harness wrote while the run happened — 147
+messages, one JSON object each, carrying every tool call and every turn's token usage. It is here so
+that the numbers above can be re-derived rather than taken on trust:
+
+```shell
+python spark/verify_run.py spark/results/dresser-flash-next-medium
+```
+
+That recomputes six of `stats.json`'s figures from the log and reports any disagreement. On this
+sample all six agree: **64 turns**, **109,283 output tokens**, **6,127,645 input tokens**, a peak
+turn of **199,782**, **one** `compile` call, and that call at **turn 62**. The rest of the run is 26
+`exec_command`, 20 `edit`, 16 `view_image`, 12 `read` and 5 `write` — the shape of the thing is 63
+turns of working in the shell and one compile at the end.
+
+**One thing about this file is not verbatim.** Shell output and tracebacks inside it carried the
+absolute paths and the local username of the machine it ran on. Those are rewritten — the run
+directory to `/workspace/run`, the checkout to `/workspace/articraft`, the interpreter to
+`/workspace/.venv`, the username to `user` — and nothing else is touched. Every token count, every
+tool call and every message is as the harness wrote it, which is why the arithmetic above still
+closes.
+
 Nine drawers on nine horizontal prismatic slides, all opening out of the front, a bar handle **26.5 mm proud**
 of each, and **four stepped bracket feet** under the corners. Checked three ways:
 

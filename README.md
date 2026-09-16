@@ -143,9 +143,13 @@ provenance rather than geometry: `file`, which names the path the run happened a
 present only when the scorer was pointed at a run directory. If a published number is wrong, the
 script says so and exits non-zero.
 
-Where a run's turn-by-turn log is published beside it, [`spark/verify_run.py`](spark/verify_run.py)
-re-derives the turn count, the token counts and the compile turn from that log and checks them
-against the `stats.json` the tooling wrote.
+One run also publishes its turn-by-turn log —
+[`conversation.jsonl`](spark/results/dresser-flash-next-medium/conversation.jsonl), 147 messages as
+the harness wrote them, with every tool call and every turn's token usage.
+[`spark/verify_run.py`](spark/verify_run.py) re-derives the turn count, both token totals, the peak
+turn and the compile turn from that log and checks them against the `stats.json` the tooling wrote.
+All six agree: **64 turns, 109,283 output tokens, 6,127,645 input, peak 199,782, one `compile`, at
+turn 62.**
 
 **What none of it checks is whether the object looks like the photo.** No script here does; that is
 what the sheets and the human reads are for, and it is the limit that decided four runs above.
