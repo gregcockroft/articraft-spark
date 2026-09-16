@@ -7,7 +7,7 @@ To try another model, copy the closest file and change it:
 
 | field | what it is |
 |---|---|
-| `MODEL_STATUS` | `tested` only once a result in `spark/results/` was measured with this exact file |
+| `MODEL_STATUS` | `tested` only once a result in `spark/results/` was measured with **the settings in this file** — every `SERVE_*` and `ARTICRAFT_OPENROUTER_*` line. Not "this exact file": promoting a model *changes* the file, so that could never stay true of anything. The settings are what a `git diff` shows is actually preserved, and they are what the run depended on. `tested` says a real run happened on these settings; **it says nothing about how good the result was** — that is what the model's own header and the results README are for |
 | `SERVE_IMAGE` | vLLM image, pinned by digest |
 | `SERVE_MODEL`, `SERVE_REVISION` | Hugging Face repo id and the commit you served |
 | `SERVE_NAME` | the name the server answers to; Articraft sends it as the model |
