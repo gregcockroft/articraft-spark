@@ -109,24 +109,34 @@ check_image() {
 
 fetch_image() { echo "--fetch: docker pull $1"; docker pull "$1"; }
 
-# --- what each key needs --------------------------------------------------------------------------
-# Narrow on purpose: the one model this repo cannot serve itself names its own extra requirements here,
-# rather than every model file growing fields for a case that applies to one of them. Flash-Next's env
-# file says the same thing in prose at its top.
-BLAZUX_REPO=https://github.com/blazux/qwen3.8-Flash-DGX
-BLAZUX_PIN=bd60fcb1b492ca920f74df7462f05da7b6d98f73
-BLAZUX_DIR=${BLAZUX_DIR:-$HOME/src/qwen3.8-Flash-DGX}
-BLAZUX_IMAGE=qwen38-flash-dgx:bd60fcb
-
-check_blazux() {
-  local head
-  head=$(git -C "$BLAZUX_DIR" rev-parse HEAD 2>/dev/null)
-  if [ "$head" = "$BLAZUX_PIN" ]; then
-    row present "clone $BLAZUX_REPO" "$(human "$(du -sb "$BLAZUX_DIR" 2>/dev/null | cut -f1)")" "$BLAZUX_DIR at $BLAZUX_PIN"
+# --- what an externally served model needs ----------------------------------------------------------
+# A model file that pins SERVE_EXTERNAL_* is served by another project, not by spark/serve.sh: the
+# clone and the image built from it are as much a prerequisite as the weights, and one of them is a
+# ~20 GB pull. Reporting the snapshot and going quiet about those would be a report that is precise
+# about 135 GB and silent about the 20 beside it. Read from the model file, so there is one pin.
+check_external() {
+  local head dir rc=0
+  dir=${SERVE_EXTERNAL_DIR:-$HOME/src/$(basename "$SERVE_EXTERNAL_REPO" .git)}
+  head=$(git -C "$dir" rev-parse HEAD 2>/dev/null)
+  if [ "$head" = "$SERVE_EXTERNAL_COMMIT" ]; then
+    row present "clone $SERVE_EXTERNAL_REPO" "$(human "$(du -sb "$dir" 2>/dev/null | cut -f1)")" \
+        "$dir at $SERVE_EXTERNAL_COMMIT"
   else
-    row MISSING "clone $BLAZUX_REPO" "~5 MB to clone" "want $BLAZUX_DIR at $BLAZUX_PIN, found '${head:-nothing}'"
-    return 1
+    row MISSING "clone $SERVE_EXTERNAL_REPO" "~5 MB to clone" \
+        "spark/serve_external.sh clones it to $dir at $SERVE_EXTERNAL_COMMIT (found '${head:-nothing}')"
+    rc=1
   fi
+  # The built image has no registry. If it is here the base image is irrelevant - that is the whole
+  # difference between a 1-minute start and a 20 GB one, so the report says which case this box is in.
+  if check_image "$SERVE_EXTERNAL_TAG"; then
+    row note "base image" "-" "not needed: $SERVE_EXTERNAL_TAG is already built on this box"
+  else
+    rc=1
+    check_image "$SERVE_EXTERNAL_BASE_IMAGE" || rc=1
+    row note "built image" "-" \
+        "spark/serve_external.sh builds $SERVE_EXTERNAL_TAG from the clone (~1 min, after the base image above), or docker save/load it from another box"
+  fi
+  return $rc
 }
 
 echo "cache check: $KEY   (HF_CACHE=$HF_CACHE)"
@@ -135,12 +145,8 @@ check_snapshot "$SERVE_MODEL" "$SERVE_REVISION" || ok=1
 if [ -n "${SERVE_IMAGE:-}" ]; then
   check_image "$SERVE_IMAGE" || ok=1
 fi
-if [ "$KEY" = qwen3.8-flash-next-nvfp4 ]; then
-  # This model is not served by spark/serve.sh: it needs blazux's patched vLLM and the image built from
-  # it, which is why its env file has no SERVE_IMAGE. Both are named so the report is complete.
-  check_blazux || ok=1
-  check_image "$BLAZUX_IMAGE" || ok=1
-  row note "built image" "-" "$BLAZUX_IMAGE is built locally: (cd $BLAZUX_DIR && scripts/build.sh), or docker save/load it from another box"
+if [ -n "${SERVE_EXTERNAL_REPO:-}" ]; then
+  check_external || ok=1
 fi
 
 if [ "$FETCH" = 1 ] && [ "$ok" != 0 ]; then
