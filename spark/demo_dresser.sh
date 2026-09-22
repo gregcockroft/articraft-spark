@@ -8,7 +8,9 @@
 # PROMPT=demo (default) sends bench/dresser/prompt_demo.txt, the one-paragraph description the
 # result in spark/results/ was built from. PROMPT=frozen sends the short benchmark prompt.
 #
-# Output: runs/spark-demo/<run-id>/ with the USDZ, the conversation, score.txt and render/sheet.png.
+# Output: runs/spark-demo/<run-id>/ with the USDZ, the conversation, score.txt, render/sheet.png and
+# render/turntable.gif - the shaded turntable the README leads with. GIF=0 skips the GIF (it is a few
+# minutes of Cycles on top of an hour-long run); everything else is unchanged by it.
 # Expect 30-120 minutes on a DGX Spark; the agent works in up to ARTICRAFT_MAX_TURNS turns.
 #
 # Exit codes, which used to be unstated - and a thing nobody states is a thing nobody notices breaking:
@@ -16,6 +18,7 @@
 #   2   this script could not start: no model file, no articraft, no server on the port, bad PROMPT
 #   3   the frozen dresser inputs do not match spark/bench/dresser/SHA256SUMS
 #   4   the object scored PASS but THE RENDER FAILED, so there is no sheet to look at
+#   5   the object scored PASS and the sheet is there, but THE GIF FAILED
 #   other   spark/score.py's verdict on the object
 # A failed render always prints a line on stderr, including when a non-zero score keeps the exit code:
 # the code can only carry one of the two facts, and the line is what makes the other one visible.
@@ -81,7 +84,22 @@ if [ -n "${BLENDER:-}" ] || command -v blender >/dev/null; then
       echo "  the object also failed scoring, so the exit code stays $verdict - the more important fact." >&2
     fi
   fi
+  if [ "${GIF:-1}" != 0 ]; then
+    # The GIF is what the README shows, so a missing one is reported like a missing sheet rather than
+    # left to be noticed: it is the output somebody actually looks at.
+    "$HERE/render/gif.sh" "$RUN"
+    gif_rc=$?
+    if [ "$gif_rc" != 0 ]; then
+      echo "GIF FAILED (exit $gif_rc): no turntable.gif was written for $RUN." >&2
+      if [ "$verdict" = 0 ]; then
+        echo "  the object scored PASS and the sheet is there; this script exits 5 to say the GIF is missing." >&2
+        verdict=5
+      else
+        echo "  the exit code stays $verdict - the more important fact." >&2
+      fi
+    fi
+  fi
 else
-  echo "no Blender: skipping the render (set BLENDER=/path/to/blender for render/sheet.png)"
+  echo "no Blender: skipping the render and the GIF (set BLENDER=/path/to/blender for render/sheet.png and render/turntable.gif)"
 fi
 exit "$verdict"

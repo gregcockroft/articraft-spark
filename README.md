@@ -98,7 +98,9 @@ box with no container and no built image: **781 s**, most of it loading ~76 GiB 
 
 The demo sends the one-paragraph prompt in [`spark/bench/dresser/prompt_demo.txt`](spark/bench/dresser/prompt_demo.txt)
 and the photo beside it (`PROMPT=frozen` sends the short benchmark prompt instead), waits for the agent
-(about an hour on a Spark), then prints a score and, with Blender available (`BLENDER=/path/to/blender`), writes `render/sheet.png` next to the run. Every input is
+(about an hour on a Spark), then prints a score and, with Blender available (`BLENDER=/path/to/blender`), writes `render/sheet.png` and `render/turntable.gif` next to the run — the four-view sheet, and a
+turntable like the one at the top of this page, rendered on the same machine in about six minutes
+(`GIF=0` skips it). Every input is
 checked against `SHA256SUMS` first, so a changed prompt cannot pass for a better model.
 
 ### Starting from an empty folder, or reusing weights you already have
@@ -124,13 +126,13 @@ your existing `~/.cache/huggingface`): `spark/cache.sh` checks it first and **ab
 anything** if the model's weights aren't already there, rather than downloading ~25–135 GB silently —
 point it at a cache that has them, or run `spark/cache.sh <model-key> --fetch` yourself first. It also
 reuses an already-running compatible server on the target port instead of restarting one, and renders
-automatically (`render/sheet.png`) if Blender is on `PATH`, `$BLENDER` is set, or it finds one in a
-couple of common local install spots. A third argument picks the `demo` (default) or `frozen` prompt;
+automatically (`render/sheet.png` and `render/turntable.gif`) if Blender is on `PATH`, `$BLENDER` is
+set, or it finds one in a couple of common local install spots. A third argument picks the `demo` (default) or `frozen` prompt;
 `FRESH_USD=1` forces a from-source OpenUSD build instead of reusing one already on the box.
 
 ## What had to change
 
-A local model behind an OpenAI-compatible server behaves in ways a hosted API hides. Six changes,
+A local model behind an OpenAI-compatible server behaves in ways a hosted API hides. Seven changes,
 each a commit on top of Articraft `ac7d688`:
 
 | commit | the problem on the Spark | the change |
@@ -140,7 +142,10 @@ each a commit on top of Articraft `ac7d688`:
 | Survive a local reasoning model | a thinking-only turn was a fatal error; a turn could generate ~49k tokens with no tool call; thinking could not be switched off; images piled up until the server refused the request | empty turns flow into the loop's normal handling; an output cap; chat-template arguments (`enable_thinking`); image-history pruning that always keeps the reference photo |
 | Bound the thinking per turn | with thinking on, Qwen reasoned for the full 32k-token cap three turns running without a tool call, and the harness stopped the run; vLLM's own `thinking_token_budget` is accepted and ignored on this server | the client closes the reasoning after N tokens (8,192 here) and asks for the action, and the model acts on the plan it has |
 | Keep the last clean compile at the turn limit | the local model keeps revising until the turn ceiling, and a run that had compiled a good revision recorded nothing | the last clean revision is kept and the record says it was salvaged (`max_turns_last_clean`) |
+| Send one configuration per run | every generating turn carries the run's chat-template arguments; the one call that compacts the conversation did not, so it went out at the template's own default — `reasoning_effort: xhigh` for Qwen3.8 — and the call least able to survive a reasoning-only reply was the only one nobody configured. One 88-minute run ended on it | the summary request carries the same arguments a turn does. **The failure is intermittent and this is not claimed as a measured fix**: a later run on the unmodified code compacted normally. The argument is that one run should send one model one configuration; a rate would need several compactions per arm |
 | Edit, do not rewrite | the model replaced a whole 300-line file to change a few lines, turn after turn; five such `write` calls were most of one run's output growth, and every recorded draw had at least one | `write` refuses a small rewrite (under 40 % of lines changed) of a file this run already wrote and points at `edit`; measured on a Flash-Next pair, 2 of 2 coherent, the model complied on the next turn both times |
+| Let a hair-thin triangle stop a finished object | `mesh_health` blocks a compile on `sliver_faces` — any triangle below a quality of 1e-4, which on the bench meant a 9 µm strip along a drawer front. In 5 of the 11 mesh-blocked compiles recorded here it was the *only* blocker, and two of those were the final compile of an otherwise finished dresser | slivers stop blocking **only when that same report carries nothing else at all** (`ARTICRAFT_MESH_SLIVERS_NONBLOCKING`, off by default, on in Flash-Next's model file); the warning is still shown to the model. Replayed offline over all 11: the control reproduced 11 of 11, exactly the 4 sliver-only chests flipped, the 6 others and one half-built draft (which also reported overlap) stayed blocked, and all 4 flipped objects were read as coherent. **Never yet exercised in a live generation** |
+| Nudge a run that edits without compiling — **off by default** | a run can edit for dozens of turns and never compile, and two recorded runs spent a whole 100-turn budget that way, recording nothing | the harness can ask for a compile after N consecutive editing turns (`ARTICRAFT_COMPILE_GATE_TURNS`). **N is 0, so the nudge is off**: its threshold of 8 was tuned by simulation over recorded runs and never compared live with it off, and the one A/B that exists runs against it (0 of 3 draws finished with it on, 2 of 3 with it off). **Set `ARTICRAFT_COMPILE_GATE_TURNS=8` to restore it.** Turning it off is a judgement, not a measurement: at the shipped `reasoning_effort: medium` there is no with/without comparison, and the exposure the nudge was added for returns. The end-of-run compile requirement is unaffected — a run still cannot finish with an uncompiled workspace |
 
 Every new setting is off by default, so nothing changes for hosted providers. The tests are in
 `tests/test_openrouter_local.py`.

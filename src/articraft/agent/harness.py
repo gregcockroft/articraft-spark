@@ -21,15 +21,21 @@ from articraft.agent.images import PreparedImage, prepare_image
 from articraft.agent.protocols import ContextSummarizer, Model, Workspace
 from articraft.agent.record import Record, append_conversation
 from articraft.agent.tools import ToolContext
-from articraft.settings import DEFAULT_MAX_TURNS
+from articraft.settings import DEFAULT_COMPILE_GATE_TURNS, DEFAULT_MAX_TURNS
 
 PROMPT_SLUG_MAX_LENGTH = 48
 MAX_CONSECUTIVE_EMPTY_RESPONSES = 3
+# A run that edits for dozens of turns without ever compiling records nothing. After this many
+# consecutive workspace-changing turns with no compile, ask for one. The agent takes it from
+# AgentConfig.compile_gate_turns; 0 turns the gate off, and 0 is the default.
+COMPILE_GATE_TURNS = DEFAULT_COMPILE_GATE_TURNS
+MUTATING_TOOL_NAMES = frozenset({"edit", "write"})
 LOGGER = logging.getLogger(__name__)
 
 
 class AgentConfig(BaseModel):
     max_turns: int = DEFAULT_MAX_TURNS
+    compile_gate_turns: int = COMPILE_GATE_TURNS
     output_path: Path | None = None
 
 
@@ -206,6 +212,7 @@ class Agent:
         hit_max_turns = False
         termination_error = ""
         consecutive_empty_responses = 0
+        edit_turns_without_compile = 0
         for turn in range(1, self.config.max_turns + 1):
             self._emit(events.TurnStarted(turn))
             summarizer = self.model if isinstance(self.model, ContextSummarizer) else None
@@ -303,6 +310,14 @@ class Agent:
 
             consecutive_empty_responses = 0
             await self._run_tool_calls(context, tool_calls, conversation_path)
+            edit_turns_without_compile = _compile_gate_count(edit_turns_without_compile, tool_calls)
+            gate_turns = self.config.compile_gate_turns
+            compile_gate_due = gate_turns > 0 and edit_turns_without_compile >= gate_turns
+            if compile_gate_due and not context.exec_sessions.live_ids():
+                edit_turns_without_compile = 0
+                _append_reminder(
+                    self.messages, conversation_path, _compile_gate_reminder(gate_turns)
+                )
         else:
             hit_max_turns = True
 
@@ -579,6 +594,30 @@ def _compile_required_reminder(context: ToolContext) -> str:
         else "No successful compile has completed yet."
     )
     return f"<compile_required>\n{reason}\nRun `compile` before concluding.\n</compile_required>"
+
+
+def _compile_gate_count(count: int, tool_calls: list[dict[str, Any]]) -> int:
+    """Count consecutive turns that changed the workspace without compiling it.
+
+    A compile resets the count whether or not it succeeded -- a failing compile
+    is already answered by the compiler's own feedback. A turn that only reads
+    neither advances nor resets it.
+    """
+    names = {str(call.get("name") or "") for call in tool_calls}
+    if "compile" in names:
+        return 0
+    if names & MUTATING_TOOL_NAMES:
+        return count + 1
+    return count
+
+
+def _compile_gate_reminder(turns: int) -> str:
+    return (
+        "<compile_required>\n"
+        f"The last {turns} turns changed the workspace and none of them ran `compile`.\n"
+        "Run `compile` now to check the current script before editing further.\n"
+        "</compile_required>"
+    )
 
 
 def _final_response_required_reminder() -> str:

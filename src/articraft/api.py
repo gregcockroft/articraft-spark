@@ -230,9 +230,13 @@ async def _run_generation(
         output_dir=settings.output_dir,
         timeout_seconds=settings.compile_timeout_seconds,
         physics_enabled=settings.physics_enabled,
+        mesh_slivers_nonblocking_if_alone=settings.mesh_slivers_nonblocking_if_alone,
     )
     model_client = create_model(settings)
-    agent_kwargs: dict[str, Any] = {"max_turns": settings.max_turns}
+    agent_kwargs: dict[str, Any] = {
+        "max_turns": settings.max_turns,
+        "compile_gate_turns": settings.compile_gate_turns,
+    }
     if on_event is not None:
         agent_kwargs["on_event"] = on_event
     return await Agent(model_client, workspace, **agent_kwargs).run(prompt, image_path=image_path)

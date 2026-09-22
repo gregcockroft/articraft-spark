@@ -111,8 +111,9 @@ def test_cli_runs_agent_with_only_core_overrides(monkeypatch, tmp_path: Path) ->
         "output_dir": output_dir,
         "timeout_seconds": 45,
         "physics_enabled": False,
+        "mesh_slivers_nonblocking_if_alone": False,
     }
-    assert FakeAgent.instances[0].kwargs == {"max_turns": 123}
+    assert FakeAgent.instances[0].kwargs == {"max_turns": 123, "compile_gate_turns": 0}
     assert FakeAgent.instances[0].prompt == "make a hinge"
     assert FakeAgent.instances[0].image_path is None
 
@@ -149,7 +150,7 @@ def test_cli_applies_textures_only_after_generation(monkeypatch) -> None:
     )
 
     assert result.exit_code == 0
-    assert FakeAgent.instances[0].kwargs == {"max_turns": 100}
+    assert FakeAgent.instances[0].kwargs == {"max_turns": 100, "compile_gate_turns": 0}
     assert FakeAgent.instances[0].prompt == "make a steel ball"
     assert applied == [FakeAgent.result]
 

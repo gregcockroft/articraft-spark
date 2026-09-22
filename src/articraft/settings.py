@@ -9,6 +9,11 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_OUTPUT_DIR = Path("runs")
 DEFAULT_MAX_TURNS = 100
+# Consecutive editing turns without a compile before the agent asks for one; 0 turns it off.
+# Off by default: the gate's threshold was tuned by simulation over recorded runs and was never
+# compared live with it off, and the one A/B that exists (xhigh: 0 of 3 finished with it on, 2 of 3
+# with it off) runs against it. Set ARTICRAFT_COMPILE_GATE_TURNS=8 to restore the old behaviour.
+DEFAULT_COMPILE_GATE_TURNS = 0
 DEFAULT_COMPILE_TIMEOUT_SECONDS = 900.0
 DEFAULT_OPENAI_MODEL = "gpt-6-astra"
 DEFAULT_OPENAI_MAX_ATTEMPTS = 4
@@ -172,9 +177,18 @@ class Settings(BaseSettings):
         validation_alias="OPENROUTER_APP_TITLE",
     )
     max_turns: int = Field(default=DEFAULT_MAX_TURNS, validation_alias="ARTICRAFT_MAX_TURNS")
+    compile_gate_turns: int = Field(
+        default=DEFAULT_COMPILE_GATE_TURNS,
+        ge=0,
+        validation_alias="ARTICRAFT_COMPILE_GATE_TURNS",
+    )
     physics_enabled: bool = Field(
         default=False,
         validation_alias="ARTICRAFT_PHYSICS",
+    )
+    mesh_slivers_nonblocking_if_alone: bool = Field(
+        default=False,
+        validation_alias="ARTICRAFT_MESH_SLIVERS_NONBLOCKING_IF_ALONE",
     )
     compile_timeout_seconds: float = Field(
         default=DEFAULT_COMPILE_TIMEOUT_SECONDS,

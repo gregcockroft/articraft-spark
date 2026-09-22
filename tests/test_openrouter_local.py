@@ -704,3 +704,53 @@ def test_text_after_the_budget_is_not_cut() -> None:
 
     assert len(requests) == 1
     assert result["text"] == "I built a dresser."
+
+
+def test_compaction_summary_carries_the_same_chat_template_kwargs_as_a_turn() -> None:
+    """The summary call is the one that used to go out unconfigured.
+
+    A run configured for a local reasoning model sends `chat_template_kwargs` on every generating
+    turn. `summarize_context` sent none, so that one call fell back to the chat template's defaults -
+    `reasoning_effort: xhigh` for Qwen3.8 - which is exactly the configuration most likely to spend
+    the whole reply on reasoning and return no text. An empty summary ends the run
+    (`agent/harness.py` re-checks it), so the cost of the asymmetry was a whole run.
+    """
+    model, requests = local_model(
+        [text_response("checkpoint"), text_response("I built a dresser.")],
+        openrouter_chat_template_kwargs='{"preserve_thinking": false, "reasoning_effort": "medium"}',
+    )
+
+    summary = run(
+        model.summarize_context(
+            [
+                {"role": "system", "content": "summarize"},
+                {"role": "user", "content": "old work"},
+            ],
+            max_output_tokens=8_192,
+        )
+    )
+    run(model.query([{"role": "user", "content": "build a dresser"}]))
+
+    assert summary["text"] == "checkpoint"
+    wanted = {"preserve_thinking": False, "reasoning_effort": "medium"}
+    assert request_json(requests[0])["chat_template_kwargs"] == wanted
+    # The point is the SAME configuration, so it is asserted against the turn rather than against a
+    # literal: a change that alters what a turn sends must alter what the summary sends with it.
+    turn_kwargs = request_json(requests[1])["chat_template_kwargs"]
+    assert request_json(requests[0])["chat_template_kwargs"] == turn_kwargs
+    assert request_json(requests[0])["max_tokens"] == 8_192
+    assert "tools" not in request_json(requests[0])
+
+
+def test_compaction_summary_sends_no_chat_template_kwargs_by_default() -> None:
+    """Unset stays unset: nothing changes for a hosted provider that never configured one."""
+    model, requests = local_model([text_response("checkpoint")])
+
+    run(
+        model.summarize_context(
+            [{"role": "user", "content": "old work"}],
+            max_output_tokens=8_192,
+        )
+    )
+
+    assert "chat_template_kwargs" not in request_json(requests[0])

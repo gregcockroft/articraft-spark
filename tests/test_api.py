@@ -158,6 +158,7 @@ def test_generate_routes_inputs_and_returns_typed_paths(monkeypatch, tmp_path: P
         "output_dir": tmp_path / "runs",
         "timeout_seconds": captured["settings"].compile_timeout_seconds,
         "physics_enabled": False,
+        "mesh_slivers_nonblocking_if_alone": False,
     }
     assert captured["agent_kwargs"]["max_turns"] == 100
     assert captured["agent_kwargs"]["on_event"] == seen.append

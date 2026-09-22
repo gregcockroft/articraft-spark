@@ -561,13 +561,16 @@ def run_scenario(
     tmp_path: Path | None = None,
     run_id: str = "scenario",
     max_turns: int = 10,
+    compile_gate_turns: int | None = None,
     assert_exhausted: bool = True,
     on_event: Callable[[events.Event], None] | None = None,
 ) -> RunArtifacts:
     """Run the full agent loop and return its artifacts.
 
     The model is a fresh :class:`ScriptedModel` built from ``script`` unless
-    ``model=`` supplies a live :class:`~articraft.Model`. Pass
+    ``model=`` supplies a live :class:`~articraft.Model`.
+    ``compile_gate_turns`` sets the agent's compile gate for this run; left out,
+    the agent's own default applies (0, i.e. off). Pass
     ``env`` to choose the compile lane (:class:`WarmEnvironment` for speed)
     or ``tmp_path`` for a plain subprocess ``LocalWorkspace``. By default
     finite harness models must be consumed exactly; pass
@@ -592,7 +595,10 @@ def run_scenario(
         if on_event is not None:
             on_event(event)
 
-    agent = Agent(model, env, max_turns=max_turns, on_event=callback)
+    agent_kwargs: dict[str, Any] = {"max_turns": max_turns}
+    if compile_gate_turns is not None:
+        agent_kwargs["compile_gate_turns"] = compile_gate_turns
+    agent = Agent(model, env, on_event=callback, **agent_kwargs)
     result = run(agent.run(prompt, run_id=run_id))
     if assert_exhausted:
         check = getattr(model, "assert_exhausted", None)

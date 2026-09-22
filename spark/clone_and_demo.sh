@@ -32,7 +32,8 @@
 #                                   model's SERVE_NAME, and skipped with guidance printed if the
 #                                   model's .env documents that spark/serve.sh does not serve it
 #                                   (e.g. qwen3.8-flash-next-nvfp4 needs its own server/image)
-#   5. spark/demo_dresser.sh <model-key>   (renders render/sheet.png too, if Blender is found — see below)
+#   5. spark/demo_dresser.sh <model-key>   (renders render/sheet.png and render/turntable.gif too,
+#                                           if Blender is found — see below)
 #
 # Expect 30-120 minutes for step 5 on a DGX-Spark-class box; the agent works in up to
 # ARTICRAFT_MAX_TURNS turns (override that env var before running this script to shorten it).

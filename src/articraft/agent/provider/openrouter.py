@@ -237,6 +237,15 @@ class OpenRouterModel:
                 self.config.openrouter_summary_max_output_tokens,
             ),
         }
+        # The same chat-template arguments the generating turns get. Without them this one call goes
+        # out at the template's own defaults - for Qwen3.8 that is `reasoning_effort: xhigh` - so the
+        # run sends one model two configurations, and the unconfigured one is the call most likely to
+        # be spent entirely on reasoning and come back with no text. An empty summary is fatal
+        # (agent/harness.py re-checks it and ends the run), so a 90-minute run can be lost to a
+        # summary that thought instead of answering.
+        template_kwargs = _chat_template_kwargs(self.config)
+        if template_kwargs:
+            request["chat_template_kwargs"] = template_kwargs
         response = await self._send_with_retries(request)
         payload = _response_payload(response)
         _raise_for_provider_error(response.status_code, payload)

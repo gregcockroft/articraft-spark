@@ -4,6 +4,7 @@ import contextlib
 import io
 import json
 import os
+import re
 import runpy
 import sys
 import time
@@ -17,8 +18,10 @@ from articraft.compiler.feedback import with_compile_report
 from articraft.compiler.result import CompilePayload, CompileResult
 from articraft.sdk import (
     FailureKind,
+    MeshHealthIssue,
     RigidBodyAssembly,
     TestContext,
+    TestFailure,
     TestMetric,
     TestReport,
 )
@@ -26,6 +29,7 @@ from articraft.sdk.export import export_assembly
 
 T = TypeVar("T", bound=Hashable)
 _COMPILE_PROGRESS_FILE = ".compile-progress.json"
+_MESH_ISSUE_LINE = re.compile(r"issue='([a-z_]+)'")
 
 
 class _CompileTracker:
@@ -82,13 +86,21 @@ class _CompileTracker:
 
 
 def compile_run(
-    run_dir: Path, *, include_report: bool = True, physics_enabled: bool = False
+    run_dir: Path,
+    *,
+    include_report: bool = True,
+    physics_enabled: bool = False,
+    slivers_nonblocking_if_alone: bool = False,
 ) -> CompilePayload:
     workspace = run_dir / "workspace"
     result_dir = run_dir / "result"
     tracker = _CompileTracker(result_dir / _COMPILE_PROGRESS_FILE)
     result = _compile_workspace(
-        workspace, result_dir, tracker=tracker, physics_enabled=physics_enabled
+        workspace,
+        result_dir,
+        tracker=tracker,
+        physics_enabled=physics_enabled,
+        slivers_nonblocking_if_alone=slivers_nonblocking_if_alone,
     )
     result.compile_stats = tracker.finish()
     tracker.remove()
@@ -176,6 +188,7 @@ def _compile_workspace(
     *,
     tracker: _CompileTracker,
     physics_enabled: bool = False,
+    slivers_nonblocking_if_alone: bool = False,
 ) -> CompileResult:
     export_dir.mkdir(parents=True, exist_ok=True)
 
@@ -205,6 +218,11 @@ def _compile_workspace(
                 tracker=tracker,
                 physics_enabled=physics_enabled,
             )
+            if slivers_nonblocking_if_alone and _sliver_failures_stand_alone(
+                (authored_report, baseline_report)
+            ):
+                authored_report = _demote_sliver_failures(authored_report)
+                baseline_report = _demote_sliver_failures(baseline_report)
             test_report = _merge_test_reports(authored_report, baseline_report)
             result.test_report = _serialize_test_report(
                 test_report,
@@ -345,6 +363,43 @@ def _run_baseline_tests(
     )
 
 
+def _sliver_only_mesh_failure(failure: TestFailure) -> bool:
+    """True for a mesh_health failure whose every reported issue is a sliver."""
+    if failure.kind is not FailureKind.MESH_HEALTH:
+        return False
+    issues = set(_MESH_ISSUE_LINE.findall(failure.details))
+    return issues == {MeshHealthIssue.SLIVER_FACES.value}
+
+
+def _sliver_failures_stand_alone(reports: Iterable[TestReport]) -> bool:
+    """True when slivers are the only thing wrong with this compile.
+
+    ARTICRAFT_MESH_SLIVERS_NONBLOCKING_IF_ALONE reads this over the authored and baseline reports
+    together. A sliver is a tessellation artifact too thin to see, but a compile that also reports
+    an overlap, a loose part or a second mesh issue is a compile whose geometry is in question, and
+    the block stays. The rule is an allow-list of one FailureKind, so a kind added later blocks.
+    """
+    reports = tuple(reports)
+    failures = [failure for report in reports for failure in report.failures]
+    if not failures or any(report.diagnostics for report in reports):
+        return False
+    return all(_sliver_only_mesh_failure(failure) for failure in failures)
+
+
+def _demote_sliver_failures(report: TestReport) -> TestReport:
+    """Move sliver-only mesh failures to diagnostics, where the model still reads them."""
+    demoted = tuple(f for f in report.failures if _sliver_only_mesh_failure(f))
+    if not demoted:
+        return report
+    failures = tuple(f for f in report.failures if f not in demoted)
+    return replace(
+        report,
+        passed=not failures,
+        failures=failures,
+        diagnostics=(*report.diagnostics, *demoted),
+    )
+
+
 def _without_allowance_notes(report: TestReport) -> TestReport:
     """Strip baseline-only allowance bookkeeping before reports are merged."""
     return replace(
@@ -432,7 +487,8 @@ def main(argv: list[str] | None = None) -> int:
     args = list(sys.argv[1:] if argv is None else argv)
     raw = "--raw" in args
     physics = "--physics" in args
-    args = [arg for arg in args if arg not in {"--raw", "--physics"}]
+    slivers_if_alone = "--slivers-if-alone" in args
+    args = [arg for arg in args if arg not in {"--raw", "--physics", "--slivers-if-alone"}]
     if len(args) != 1:
         payload = CompileResult(
             error="Usage: python -m articraft.compiler.worker <run_dir>"
@@ -442,7 +498,12 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(payload))
         return 2
 
-    payload = compile_run(Path(args[0]).resolve(), include_report=not raw, physics_enabled=physics)
+    payload = compile_run(
+        Path(args[0]).resolve(),
+        include_report=not raw,
+        physics_enabled=physics,
+        slivers_nonblocking_if_alone=slivers_if_alone,
+    )
     print(json.dumps(payload))
     return 0 if payload["status"] == "success" else 1
 
