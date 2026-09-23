@@ -3,45 +3,18 @@
 **A reference photo in, an articulated 3D asset out, on one NVIDIA DGX Spark with an open-weight
 model. No API key and no cloud once the weights are downloaded.**
 
-## Latest — 2026-09-12: a second local model built the dresser
+## Latest — 2026-09-22: `clone_and_demo.sh`, run from an empty folder
 
-**[Qwen3.8-Flash-Next](https://huggingface.co/Qwen/Qwen3.8-Flash-Next) drove this loop on one Spark**, from
-the same photo and the same one-paragraph prompt as the dresser below. It is served by
-**[blazux/qwen3.8-Flash-DGX](https://github.com/blazux/qwen3.8-Flash-DGX)** — about 135 GB of weights in
-NVFP4 do not fit on a 121 GB Spark under stock vLLM, and their patched build is what makes it run here.
+**One command, a fresh clone of this repo's `main`, and the weights already on the box:**
+[`spark/clone_and_demo.sh`](spark/clone_and_demo.sh) was fetched from GitHub and run as
+`./clone_and_demo.sh qwen3.8-flash-next-nvfp4 ~/.cache/huggingface` (the `demo` prompt). `spark/cache.sh`
+found the 135.3 GB of weights and the server image already present — **nothing to fetch: 0 bytes** — and
+the server started offline. **It passed**: 58 turns in 155 minutes, ended on its own final response, then
+scored and rendered this turntable itself.
 
-![The dresser built by Qwen3.8-Flash-Next on a DGX Spark, turning while its nine drawers slide open one after another](spark/results/dresser_flash_next.gif)
+![The dresser built by Qwen3.8-Flash-Next from a fresh clone_and_demo.sh run, turning while its nine drawers slide open one after another](spark/results/dresser_clone_and_demo.gif)
 
-*Qwen3.8-Flash-Next, 2026-09-11: **77 turns in 101 minutes, ended on its own final response** — and this is
-that run's own last revision, not a good step picked out of one. Nine prismatic joints, every slide
-horizontal and opening out of the front (`spark/score.py`: 9/9 and 9/9), every handle proud of its drawer
-front (`spark/handles.py`: 9/9). The fronts read better than the dresser below's; the sides of neither are
-right, with the drawer rails running out to the outside of the side panels on both.*
-
-On that server the model was ready in 752 s and decoded at 15.95 tok/s, and no source change was needed to
-drive it.
-
-**2026-09-12 — it now holds over a registered pair, not one run.** Two draws at `reasoning_effort: medium`,
-on one server instance with no reload between them and predictions written before either started: **both
-produced a coherent dresser**, 64 turns in 1 h 57 m and 56 turns in 64 min, both ending on their own final
-response. Every revision either run produced passes all three automated checks — `spark/score.py` 9/9 and 9/9,
-`spark/handles.py` 9/9 proud, and a `pxr` placement read putting 9/9 drawers inside the carcass. The sample is
-[`spark/results/dresser-flash-next-medium/`](spark/results/dresser-flash-next-medium/).
-
-**The setting is the whole difference, and the cheap-looking one is not cheap.** At `reasoning_effort: low`
-Flash-Next ran 98 turns without once calling `compile` and produced nothing — and spent **51 % more output
-tokens** (136,463) doing so. **`medium` is better, not a guarantee: it is 2 of 3 recorded draws** — the two
-above, and one on 2026-09-16 that ran the full 100 turns and called `compile` **once**, at turn 72, which
-failed. Same model, same settings, one command from a fresh clone.
-
-**What the checks do not see, and this is the most important paragraph on the page.** Six recorded draws
-have now been shown to a person. His words: *"very good"*, *"good but feet missing at bottom"*, *"good but
-top and sides have underlying geometry slightly pushing through"*, *"poor — missing cavity on drawers"*,
-and on the two newest, both *"medium quality … not complete top and sides and drawers are not a cavity"*.
-**Every one of those six passed `score.py`, `handles.py` and the placement read identically.** Missing
-feet, surfaces punching through another part, and a drawer that is a solid block rather than a box are
-not something any check here looks at. **The automated legs are a floor: they can show you an object is
-broken, and they cannot tell you it is good.**
+<img src="spark/results/dresser_clone_and_demo_sheet.png" width="640" alt="The same dresser closed and with every drawer open, from four sides">
 
 [Articraft](https://github.com/articraftresearch/Articraft) is an agent that turns a prompt or a
 reference photo into a posable 3D object. A language model writes Python against Articraft's CAD SDK;
