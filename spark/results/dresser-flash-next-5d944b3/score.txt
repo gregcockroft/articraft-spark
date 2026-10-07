@@ -1,0 +1,16 @@
+file     /workspace/run/result/usdz/0001.usdz
+record   status=success  terminate_reason=final_response
+joints   9  prismatic 9
+ask      min 9, required {'prismatic': 9}  ->  PASS
+  drawer_slide_r1c1      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r1c2      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r1c3      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r2c1      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r2c2      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r2c3      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r3c1      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r3c2      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+  drawer_slide_r3c3      world axis (+0.00,+1.00,+0.00)  horizontal  moves out
+axis     9/9 prismatic axes horizontal  ->  PASS
+out      9/9 move away from their parent  ->  PASS
+RESULT   PASS  (now look at the render)

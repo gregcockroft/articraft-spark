@@ -1,0 +1,10 @@
+  drawer_r1c1    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r1c2    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r1c3    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r2c1    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r2c2    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r2c3    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r3c1    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r3c2    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+  drawer_r3c3    handle(s) handle_bar, handle_post_bottom, handle_p proud of the front by +27.5 mm  OK
+handles  9/9 drawers have a handle standing proud of the front  ->  PASS

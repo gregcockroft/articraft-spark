@@ -21,7 +21,7 @@ has() { if grep -qF -- "$2" "$3"; then ok "$1"; else bad "$1 (no '$2' in $3)"; f
 hasnt() { if grep -qF -- "$2" "$3"; then bad "$1 (found '$2' in $3)"; else ok "$1"; fi; }
 # The same floor spark/test_cache.sh keeps, and for the same reason: a case that stops running must
 # not read as a clean pass. Raise it deliberately when cases are added.
-CHECKS_MIN=${CHECKS_MIN:-58}
+CHECKS_MIN=${CHECKS_MIN:-68}
 
 # --- stubs ----------------------------------------------------------------------------------------
 STUB=$TMP/bin; mkdir -p "$STUB"
@@ -30,7 +30,14 @@ cat > "$STUB/docker" <<'EOF'
 { printf 'docker'; for a in "$@"; do printf ' [%s]' "$a"; done; printf '\n'; } >> "$STUB_LOG"
 case "$1 $2" in
   "image inspect")
-    for ref in ${STUB_IMAGES:-}; do [ "$ref" = "$3" ] && { echo "sha256:stub"; exit 0; }; done
+    # The ref is the last argument, with or without -f. Their scripts/serve.sh asks for the image's
+    # qwen38.base label and refuses a build that is not theirs; a present image answers as one.
+    for ref; do :; done
+    for have in ${STUB_IMAGES:-} $(cat "$STUB_LOG.built" 2>/dev/null); do
+      [ "$have" = "$ref" ] || continue
+      case "$*" in *qwen38.base*) echo "${STUB_LABEL:-v0.30}" ;; *) echo "sha256:stub" ;; esac
+      exit 0
+    done
     exit 1 ;;
   "inspect -f")
     case "$3" in
@@ -41,6 +48,8 @@ case "$1 $2" in
 esac
 case "$1" in
   ps)   echo "${STUB_PS:-}" ;;
+  # A built image exists afterwards: their launcher reads its label before it starts anything.
+  build) while [ $# -gt 0 ]; do [ "$1" = -t ] && echo "$2" >> "$STUB_LOG.built"; shift; done ;;
   # `docker logs -f` blocks for the container's life. /bin/sleep by absolute path on purpose: the
   # stub `sleep` beside this file is the instant one their script's own `sleep 8` must hit, and a
   # follower that exits at once cannot show whether it was holding a lock.
@@ -132,6 +141,33 @@ else bad "the restart policy is dropped before the container exists"; fi
 has "the container's own snapshot is read back with docker inspect" "docker [inspect] [-f] [{{index .Config.Cmd 0}}]" "$log"
 hasnt "no image is built when the tag is already here" "docker [build]" "$log"
 
+echo "=== the served name and their MODE come from the model file ==="
+# Their default name happens to equal ours, so the happy path cannot tell a pass-through from a
+# coincidence: a different SERVE_NAME has to reach the command line.
+mkenv named "$FIX_PIN" "SERVE_NAME=probe-name"
+out=$TMP/named.txt; log=$TMP/named.log
+run_ext named "$out" "$log" STUB_IMAGES="$TAG" STUB_CURL_RC=0
+grep '^docker \[run\]' "$log" | head -1 > "$TMP/named_argv.txt"
+if grep -q 'SERVED_MODEL_NAME' "$CLONE/scripts/serve.sh"; then
+  has "SERVE_NAME reaches --served-model-name" "[--served-model-name] [probe-name]" "$TMP/named_argv.txt"
+else
+  ok "(their launcher at this pin has no SERVED_MODEL_NAME: the name is theirs, hardcoded)"
+fi
+has "MODE is passed explicitly, from SERVE_EXTERNAL_MODE" 'MODE="${SERVE_EXTERNAL_MODE:-nvfp4}"' "$HERE/serve_external.sh"
+if grep -q 'MODE=hybrid' "$CLONE/scripts/serve.sh"; then
+  hasnt "MODE=nvfp4 sets no hybrid env" "VLLM_FP8_HYBRID" "$TMP/run_argv.txt"
+fi
+
+echo "=== --build-only builds and starts nothing ==="
+out=$TMP/buildonly.txt; log=$TMP/buildonly.log; : > "$log"
+env PATH="$STUB:$PATH" STUB_LOG="$log" HF_CACHE="$FULL" SERVE_EXTERNAL_DIR="$CLONE" \
+    ARTICRAFT_SERVE_LOGS="$TMP/logs" STUB_IMAGES="$BASE_IMAGE" STUB_CURL_RC=0 \
+    "$FAKE/serve_external.sh" flash --build-only > "$out" 2>&1
+eq "--build-only: exit code" "$?" 0
+has "it builds the image" "docker [build] [--pull=false] [-t] [$TAG]" "$log"
+hasnt "it starts no container" "docker [run]" "$log"
+has "and says so" "--build-only, nothing started" "$out"
+
 echo "=== 1. the negative control: a non-zero MTP reaches the command line, and the test SEES it ==="
 mkenv mtp2 "$FIX_PIN" "SERVE_EXTERNAL_MTP=2"
 out=$TMP/mtp2.txt; log=$TMP/mtp2.log
@@ -167,7 +203,21 @@ out=$TMP/pull.txt; log=$TMP/pull.log
 run_ext flash "$out" "$log" STUB_IMAGES="" STUB_CURL_RC=0   # neither the tag nor the base image is here
 has "it says the build pulls about 20 GB" "PULL ABOUT 20 GB" "$out"
 has "naming the image it will pull" "$BASE_IMAGE" "$out"
-has "and it does build" "docker [build] [-t] [$TAG]" "$log"
+has "and it does build, from the local base and not a fresh pull of a tag" "docker [build] [--pull=false] [-t] [$TAG]" "$log"
+has "it pulls the base by its pinned digest" "docker [pull] [$BASE_IMAGE]" "$log"
+# Their Dockerfile names the base by tag (FROM vllm/vllm-openai:v0.30.0) where this repo pins the digest:
+# the tag must be pointed at the pinned bytes BEFORE the build reads it. With a recorder fixture the
+# FROM line is the pinned ref itself, and then there is nothing to re-point.
+FROM_REF=$(awk '/^FROM /{ print $2; exit }' "$CLONE/Dockerfile")
+if [ "$FROM_REF" != "$BASE_IMAGE" ]; then
+  has "the Dockerfile's tag is pointed at the pinned digest" "docker [tag] [$BASE_IMAGE] [$FROM_REF]" "$log"
+  if [ "$(grep -n 'docker \[tag\]' "$log" | cut -d: -f1 | head -1)" -lt "$(grep -n 'docker \[build\]' "$log" | cut -d: -f1 | head -1)" ]; then
+    ok "and before the build, not after"
+  else bad "the tag is re-pointed after the build has already read it"; fi
+else
+  hasnt "a Dockerfile that pins the digest itself is not re-tagged" "docker [tag]" "$log"
+  ok "(recorder fixture: FROM is the pinned ref)"
+fi
 if [ "$(grep -n 'PULL ABOUT 20 GB' "$out" | cut -d: -f1 | head -1)" -lt "$(grep -n 'serving ' "$out" | cut -d: -f1 | head -1)" ]; then
   ok "the disclosure comes before the container is started, not after"
 else bad "the disclosure lands after the start"; fi

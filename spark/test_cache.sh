@@ -107,7 +107,8 @@ for key in $(cd "$HERE/models" && ls ./*.env | sed 's|^\./||; s/\.env$//'); do
 done
 out=$TMP/all_qwen3.8-flash-next-nvfp4.txt
 has "Flash-Next names blazux's clone" "clone https://github.com/blazux/qwen3.8-Flash-DGX" "$out"
-has "Flash-Next names the locally built image" "image qwen38-flash-dgx:bd60fcb" "$out"
+has "Flash-Next names the locally built image" \
+    "image $( (set -a; . "$HERE/models/qwen3.8-flash-next-nvfp4.env"; echo "$SERVE_EXTERNAL_TAG") )" "$out"
 has "and says how to get that image without a registry" "docker save/load it from another box" "$out"
 
 echo "=== the agreement cache.sh:38 and serve.sh claim 'by construction', CHECKED for every key ==="

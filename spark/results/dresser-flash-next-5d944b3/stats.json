@@ -1,0 +1,28 @@
+{
+  "attempts": 2,
+  "conversation": {
+    "compile_calls": 2,
+    "compile_turns": [81, 87],
+    "first_clean_compile_turn": 87,
+    "peak_turn_input_tokens": 219812,
+    "turns": 88
+  },
+  "input_tokens": 9246654,
+  "output_tokens": 156642,
+  "mode": "clone_and_demo",
+  "prompt": "demo",
+  "rc": 0,
+  "result": "result/usdz/0001.usdz",
+  "server": {
+    "external_commit": "5d944b3a91bea0abc0bc3c657cbe137b970f8a44",
+    "image": "qwen38-flash-dgx:5d944b3",
+    "base_image": "vllm/vllm-openai:v0.30.0@sha256:8a69ffad015f138d7170c4ddc429e230a3bc1c1719f67e14324749df200a4b90",
+    "model": "RadixArk/Qwen3.8-Flash-Next-NVFP4",
+    "revision": "7b719225242aacd3dbd3f9407468c2ee9a9d2594",
+    "mtp": 0
+  },
+  "status": "success",
+  "terminate_reason": "final_response",
+  "wall_s": 10186,
+  "wall_note": "generation only: 23:13:52 to 02:03:38 from demo_dresser.sh's own log lines; no server-side sampler ran, so no decode-rate window or cache-hit figure is claimed"
+}

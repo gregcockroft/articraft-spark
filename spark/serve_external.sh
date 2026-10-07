@@ -2,6 +2,7 @@
 # Serve a model whose server is not stock vLLM, by driving the project the model file pins.
 #
 #   spark/serve_external.sh qwen3.8-flash-next-nvfp4     # or: spark/serve.sh <same key>, which dispatches here
+#   spark/serve_external.sh qwen3.8-flash-next-nvfp4 --build-only   # clone + image, start nothing
 #
 # One model needs this: Qwen3.8-Flash-Next is 135 GB of weights and stock vLLM cannot fit it on one
 # 121 GB Spark. blazux/qwen3.8-Flash-DGX patches the official image so the n-gram table is mmapped
@@ -15,7 +16,8 @@
 # be built or started, that is the failure, and spark/serve.sh does not quietly serve something else.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")" && pwd)
-KEY=${1:?usage: spark/serve_external.sh <model-key>}
+KEY=${1:?usage: spark/serve_external.sh <model-key> [--build-only]}
+BUILD_ONLY=0; [ "${2:-}" = --build-only ] && BUILD_ONLY=1
 ENV_FILE=$HERE/models/$KEY.env
 [ -f "$ENV_FILE" ] || { echo "no model file $ENV_FILE" >&2; exit 2; }
 # shellcheck disable=SC1090
@@ -78,32 +80,46 @@ fi
 # it starts, the same courtesy spark/serve.sh pays for weights: nobody should discover a 20 GB pull
 # from their bandwidth bill.
 if ! docker image inspect "$SERVE_EXTERNAL_TAG" >/dev/null 2>&1; then
-  grep -qF "FROM $SERVE_EXTERNAL_BASE_IMAGE" "$DIR/Dockerfile" \
-    || { echo "$DIR/Dockerfile at $SERVE_EXTERNAL_COMMIT does not build FROM the pinned base image" >&2
-         echo "  pinned here: $SERVE_EXTERNAL_BASE_IMAGE" >&2; exit 4; }
+  # Their Dockerfile names its base either by the digest pinned here or by that digest's tag. A tag
+  # moves, so in that case the tag is pointed at the pinned bytes before the build - the image is then
+  # the same whichever day it is built. Anything else is a base this model file does not pin.
+  FROM_REF=$(awk '/^FROM /{ print $2; exit }' "$DIR/Dockerfile")
+  case "$FROM_REF" in
+    "$SERVE_EXTERNAL_BASE_IMAGE") RETAG= ;;
+    "${SERVE_EXTERNAL_BASE_IMAGE%@*}") RETAG=$FROM_REF ;;
+    *) echo "$DIR/Dockerfile at $SERVE_EXTERNAL_COMMIT does not build FROM the pinned base image" >&2
+       echo "  pinned here: $SERVE_EXTERNAL_BASE_IMAGE" >&2
+       echo "  FROM there:  ${FROM_REF:-nothing}" >&2; exit 4 ;;
+  esac
   if docker image inspect "$SERVE_EXTERNAL_BASE_IMAGE" >/dev/null 2>&1; then
     echo "building $SERVE_EXTERNAL_TAG from $DIR at $SERVE_EXTERNAL_COMMIT (~1 min; the base image is here)" >&2
   else
     echo "this box has neither $SERVE_EXTERNAL_TAG nor its base image." >&2
     echo "The build will FIRST PULL ABOUT 20 GB: $SERVE_EXTERNAL_BASE_IMAGE" >&2
     echo "Then it patches it into $SERVE_EXTERNAL_TAG (~1 min). Ctrl-C now if that is not what you want." >&2
+    docker pull "$SERVE_EXTERNAL_BASE_IMAGE"
   fi
-  docker build -t "$SERVE_EXTERNAL_TAG" "$DIR"
+  [ -n "$RETAG" ] && docker tag "$SERVE_EXTERNAL_BASE_IMAGE" "$RETAG"
+  docker build --pull=false -t "$SERVE_EXTERNAL_TAG" "$DIR"
+fi
+if [ "$BUILD_ONLY" = 1 ]; then
+  echo "built: $SERVE_EXTERNAL_TAG ($(docker image inspect -f '{{.Id}}' "$SERVE_EXTERNAL_TAG" 2>/dev/null)); --build-only, nothing started"
+  exit 0
 fi
 
 # --- start it -------------------------------------------------------------------------------------
 # Their defaults are not ours and two of the differences are load-bearing. MTP: their default is 2
-# (scripts/serve.sh:62) and the container that produced spark/results/dresser-flash-next-medium/
+# (scripts/serve.sh:80 at the pin) and the container that produced spark/results/dresser-flash-next-medium/
 # carries no --speculative-config at all, so SERVE_EXTERNAL_MTP=0 is what the published numbers were
 # measured with. SEQS: theirs is 8, ours is 4. Their $EXTRA is expanded unquoted, so the image limit
 # must be a single word - the spaces come out of the JSON rather than splitting it into two flags.
 docker rm -f "$NAME" >/dev/null 2>&1 || true
 env NAME="$NAME" IMAGE="$SERVE_EXTERNAL_TAG" MODEL="$SERVE_MODEL" HF_CACHE="$HF_CACHE" PORT="$PORT" \
     CTX="$SERVE_MAX_MODEL_LEN" SEQS="$SERVE_MAX_SEQS" GPU_MEM="$SERVE_GPU_UTIL" \
-    MTP="${SERVE_EXTERNAL_MTP:-0}" \
+    MTP="${SERVE_EXTERNAL_MTP:-0}" MODE="${SERVE_EXTERNAL_MODE:-nvfp4}" SERVED_MODEL_NAME="$SERVE_NAME" \
     EXTRA="${SERVE_LIMIT_MM:+--limit-mm-per-prompt ${SERVE_LIMIT_MM// /}}" \
     "$DIR/scripts/serve.sh"
-# scripts/serve.sh:140 hardcodes --restart unless-stopped and offers no env knob for it. A measured
+# scripts/serve.sh:301 hardcodes --restart unless-stopped and offers no env knob for it. A measured
 # server that resurrects itself after a reboot is not a measured server; drop the policy at once.
 docker update --restart=no "$NAME" >/dev/null
 # Their script serves whichever snapshot the cache's refs/main points at, which need not be the one
