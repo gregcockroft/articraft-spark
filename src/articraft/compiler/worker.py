@@ -338,6 +338,8 @@ def _run_baseline_tests(
         ctx.warn_if_part_contains_disconnected_geometry_islands()
     with tracker.phase("checking the model scale"):
         ctx.warn_if_absurd_dimensions()
+    with tracker.phase("checking for coincident faces"):
+        ctx.warn_if_coplanar_faces()
     with tracker.phase("checking for part overlaps"):
         ctx.fail_if_parts_overlap_in_current_pose()
     with tracker.phase("checking articulation motion"):

@@ -48,9 +48,9 @@ Open the output with `view_image`. Confirm that each reticle marks the intended 
 
 A reticle records visible evidence. It cannot find depth from one image.
 
-## Preview before compilation
+## Previews after the first compile
 
-Create `previews.py` after you have the first complete model. Import `object_model` from
+Create `previews.py` once the first complete model has compiled. Import `object_model` from
 `main.py` and call the public renderer.
 
 ```python
@@ -144,7 +144,8 @@ ModelView(
 )
 ```
 
-Use `ModelView.front()`, `side()`, `top()`, or `three_quarter()` for a common camera.
+Use `ModelView.front()`, `side()`, `top()`, or `three_quarter()` for a common camera. Each
+accepts the same keywords as `ModelView`, including its own `direction=` to adjust that camera.
 
 `projection` accepts `orthographic` or `perspective`. `color_by` accepts `part`, `shape`, or
 `material`.

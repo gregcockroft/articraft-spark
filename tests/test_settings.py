@@ -51,3 +51,18 @@ def test_openrouter_context_window_accepts_zero_and_the_minimum() -> None:
 def test_openrouter_summary_output_limit_must_be_positive(limit: int) -> None:
     with pytest.raises(ValidationError, match="greater than or equal to 1"):
         Settings(openrouter_summary_max_output_tokens=limit)  # pyright: ignore[reportCallIssue]
+
+
+def test_openrouter_window_must_hold_the_reply_reserve_too() -> None:
+    with pytest.raises(ValidationError, match="reply reserve"):
+        Settings(  # pyright: ignore[reportCallIssue]
+            openrouter_context_window_tokens=65_536,
+            openrouter_max_output_tokens=32_768,
+            openrouter_thinking_budget_tokens=8_192,
+        )
+    flash_next = Settings(  # pyright: ignore[reportCallIssue]
+        openrouter_context_window_tokens=262_144,
+        openrouter_max_output_tokens=32_768,
+        openrouter_thinking_budget_tokens=8_192,
+    )
+    assert flash_next.openrouter_context_window_tokens == 262_144

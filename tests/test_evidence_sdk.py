@@ -141,6 +141,29 @@ def test_metrics_and_artifacts_are_recorded(monkeypatch, tmp_path: Path) -> None
         ctx.attach_artifact("qa/missing.json")
 
 
+def test_metrics_take_unit_and_bounds_positionally_as_documented() -> None:
+    model = RigidBodyAssembly("positional")
+    model.rigid_body("body").add(BoxGeometry((1.0, 1.0, 1.0)), name="box")
+    ctx = TestContext(model)
+
+    ctx.record_metric("travel", 0.3, "m")
+    assert ctx.expect_metric("width", 1.0, 0.9, 1.1, "m")
+    assert not ctx.expect_metric("depth", 1.0, 1.5)
+    metrics = ctx.report().metrics
+    assert (metrics[0].unit, metrics[1].minimum, metrics[1].maximum) == ("m", 0.9, 1.1)
+    assert metrics[2].passed is False
+
+
+def test_camera_presets_take_their_own_direction() -> None:
+    assert ModelView.three_quarter().direction == (1.0, -1.0, 0.7)
+    assert ModelView.three_quarter(direction=(0.5, -1.0, 0.4)).direction == (0.5, -1.0, 0.4)
+    assert ModelView.front(width=200).direction == (0.0, -1.0, 0.15)
+    top = ModelView.top(up=(1.0, 0.0, 0.0))
+    assert (top.direction, top.up) == ((0.0, 0.0, 1.0), (1.0, 0.0, 0.0))
+    # A top view turned to look along +y must not keep the straight-down view's y-up camera.
+    assert ModelView.top(direction=(0.0, 1.0, 0.0)).up == ModelView(direction=(0.0, 1.0, 0.0)).up
+
+
 def _slider_model() -> RigidBodyAssembly:
     model = RigidBodyAssembly("slider")
     model.rigid_body("base").add(BoxGeometry((0.5, 0.5, 0.5)), name="base")

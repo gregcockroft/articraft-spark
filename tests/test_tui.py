@@ -330,3 +330,21 @@ def test_replay_rows_resolve_tool_names() -> None:
     assert "main.py (120 bytes)" in out
     assert "compile ok" in out
     assert renderer.turn == 1
+
+
+def test_final_summary_of_a_salvaged_run_still_shows_the_error_that_ended_it() -> None:
+    renderer, console = _renderer()
+    summary = renderer.final_summary(
+        events.RunFinished(
+            status="success",
+            run="runs/run-x",
+            result="result/usdz/0003.usdz",
+            error="model query failed: context length exceeded",
+            turns=76,
+        )
+    )
+    console.print(summary)
+
+    out = _text(console)
+    assert "success" in out
+    assert "context length exceeded" in out

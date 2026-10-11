@@ -281,6 +281,17 @@ def _warning_signal(text: str) -> CompileSignal:
             source="tests",
             group="design",
         )
+    if lower.startswith("coplanar face warning"):
+        return CompileSignal(
+            "warning",
+            "coplanar_faces",
+            "WARN_COPLANAR_FACES",
+            "Two shapes have a visible face on the same plane, so the render flickers there. Move one "
+            "face of each listed pair at least 1 mm off the plane: inset it, or let the other shape cover it.",
+            stripped,
+            source="compiler",
+            group="design",
+        )
     if "disconnected geometry" in lower or lower.startswith(
         "warn_if_part_contains_disconnected_geometry_islands("
     ):

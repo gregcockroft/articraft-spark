@@ -660,6 +660,8 @@ def test_reasoning_past_the_budget_is_closed_and_answered() -> None:
     # Both phases are charged: 100 + 8 in, 8 + 50 out.
     assert result["token_usage"]["input_tokens"] == 500
     assert result["token_usage"]["output_tokens"] == 58
+    # The window the turn used is the resent request's alone, not the billed sum.
+    assert result["context_tokens"] == 450
 
 
 def test_reasoning_that_ends_under_the_budget_is_an_empty_turn() -> None:
@@ -754,3 +756,15 @@ def test_compaction_summary_sends_no_chat_template_kwargs_by_default() -> None:
     )
 
     assert "chat_template_kwargs" not in request_json(requests[0])
+
+
+def test_the_response_reserve_is_the_reply_cap_plus_the_thinking_budget() -> None:
+    """A server counts max_tokens against the window, and a budget-hit turn resends its reasoning."""
+    model, _ = local_model([], openrouter_max_output_tokens=32_768)
+    assert model.response_reserve_tokens == 32_768
+
+    model, _ = budget_model([], openrouter_max_output_tokens=32_768)
+    assert model.response_reserve_tokens == 32_768 + 8
+
+    model, _ = local_model([])
+    assert model.response_reserve_tokens == 0

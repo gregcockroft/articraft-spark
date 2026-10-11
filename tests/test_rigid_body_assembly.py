@@ -330,3 +330,16 @@ def test_structural_names_must_be_identifiers() -> None:
 
     # Shape names stay display-only and permissive.
     body.add(Box(0.05, 0.05, 0.05), name="display-shape")
+
+
+def test_rigid_body_lists_its_shapes_read_only() -> None:
+    model = RigidBodyAssembly("shapes")
+    body = model.rigid_body("body")
+    first = body.add(Box(1.0, 1.0, 1.0), name="first")
+    body.add(Box(0.5, 0.5, 0.5), name="second")
+
+    assert list(body.shapes) == ["first", "second"]
+    assert body.shapes["first"] is first
+    with pytest.raises(TypeError):
+        body.shapes["third"] = first  # type: ignore[index]
+    assert list(model.rigid_body("empty").shapes) == []

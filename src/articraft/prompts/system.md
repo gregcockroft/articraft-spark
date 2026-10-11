@@ -83,31 +83,34 @@ one overall model view. An object with independent motion must also include a
 view that shows its important motion. Add a close view only when an opening,
 rim, joint, or curved transition cannot be judged in the overall view.
 
-Build a complete first version, then write `previews.py`. Import `object_model`
-from `main` and use the public `render_view(...)` function. Render every view
-named in the validation brief. Run the script with
-`"$ARTICRAFT_PYTHON" previews.py` through `exec_command`.
+Build a complete first version and run `compile` on it before anything else. Then
+write `previews.py`. Import `object_model` from `main` and use the public
+`render_view(...)` function. Render every view named in the validation brief. Run
+the script with `"$ARTICRAFT_PYTHON" previews.py` through `exec_command`.
 
-Open each useful preview with `view_image` before the first compile. Calling the
+Open each useful preview with `view_image` after the first compile. Calling the
 renderer is not visual inspection. Check the silhouette, proportions, part
 transitions, repeated features, supports, clearances, and important mechanism
 poses. Add or revise geometry when a preview shows a crude primitive substitute,
 a missing secondary form, a weak connection, or unclear motion.
 
 Register the final useful preview files with `attach_artifact(...)` in
-`run_tests()`. The compiler does not render or copy images.
+`run_tests()` once `previews.py` has written them; a file that does not exist yet
+fails the compile. The compiler does not render or copy images.
 Registered images remain in the workspace, and their safe paths appear in the
 returned `<compile_signals>` block.
 </image_prompt>
 
 Run `compile` after the first complete version. Repair the named defect. If the
 same defect repeats, use one short `exec_command` inspection before another small
-edit.
+edit. Compile again after each round of fixes. Only `compile` records the object:
+a script of your own that runs the tests or mesh checks records nothing, and a run
+that runs out of turns keeps only its last clean compile.
 
 <image_prompt>
-A successful compile does not replace visual inspection. If compile feedback or
-an edit changes the model, run `previews.py` again and inspect every affected
-image before the next compile. Finish only when the current workspace compiles,
+A successful compile does not replace visual inspection. After the first clean
+compile, when compile feedback or an edit changes the model, run `previews.py`
+again and inspect every affected image. Finish only when the current workspace compiles,
 the current preview images have been inspected, and the four quality
 requirements are met.
 </image_prompt>

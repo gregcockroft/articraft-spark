@@ -235,6 +235,29 @@ def test_compile_report_maps_disconnected_geometry_warning() -> None:
     assert signal["blocking"] is False
 
 
+def test_compile_report_maps_coplanar_face_warning_to_its_own_nonblocking_signal() -> None:
+    test_report = TestReport(
+        passed=True,
+        checks_run=1,
+        checks=("warn_if_coplanar_faces()",),
+        failures=(),
+        warnings=(
+            "Coplanar face warning:\n'carcass'/'side_right' and 'carcass'/'mid_rail' share 8 cm2 of "
+            "visible face: the plane x=+0.5000, facing +x\nA renderer flickers between coincident "
+            "faces. Move one face of each pair at least 1 mm off the shared plane: inset it, or let "
+            "the other shape cover it.",
+        ),
+    )
+
+    report = build_compile_report(status="success", test_report=test_report)
+    (signal,) = report["signal_bundle"]["signals"]
+
+    assert signal["kind"] == "coplanar_faces"
+    assert signal["code"] == "WARN_COPLANAR_FACES"
+    assert signal["blocking"] is False
+    assert "x=+0.5000" in signal["details"]
+
+
 def test_compile_report_classifies_contact_and_scale() -> None:
     test_report = TestReport(
         passed=False,

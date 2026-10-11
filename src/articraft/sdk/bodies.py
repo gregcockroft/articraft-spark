@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator, Mapping, Sequence
 from dataclasses import dataclass, field
+from types import MappingProxyType
 from typing import TypeAlias
 
 from build123d.topology import Shape
@@ -113,6 +114,12 @@ class RigidBody:
             ),
         )
         return shape
+
+    @property
+    def shapes(self) -> Mapping[str, Geometry]:
+        """This body's named geometry, read-only, in the order it was added."""
+
+        return MappingProxyType({name: entry.geometry for name, entry in self._shapes.items()})
 
     def shape(self, name: str) -> Geometry:
         shape_name = _as_name(name, field_name="shape name")

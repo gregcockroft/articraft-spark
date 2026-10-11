@@ -81,19 +81,22 @@ class ModelView:
 
     @classmethod
     def front(cls, **kwargs) -> ModelView:
-        return cls(direction=(0.0, -1.0, 0.15), **kwargs)
+        return cls(**{"direction": (0.0, -1.0, 0.15), **kwargs})
 
     @classmethod
     def side(cls, **kwargs) -> ModelView:
-        return cls(direction=(1.0, 0.0, 0.15), **kwargs)
+        return cls(**{"direction": (1.0, 0.0, 0.15), **kwargs})
 
     @classmethod
     def top(cls, **kwargs) -> ModelView:
-        return cls(direction=(0.0, 0.0, 1.0), up=(0.0, 1.0, 0.0), **kwargs)
+        # The y-up camera belongs to the straight-down view, not to a caller's own direction.
+        if "direction" in kwargs:
+            return cls(**kwargs)
+        return cls(**{"direction": (0.0, 0.0, 1.0), "up": (0.0, 1.0, 0.0), **kwargs})
 
     @classmethod
     def three_quarter(cls, **kwargs) -> ModelView:
-        return cls(direction=(1.0, -1.0, 0.7), **kwargs)
+        return cls(**{"direction": (1.0, -1.0, 0.7), **kwargs})
 
 
 @dataclass(frozen=True)

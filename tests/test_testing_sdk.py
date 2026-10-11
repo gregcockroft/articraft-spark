@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import warnings
 
+import numpy as np
 import pytest
 from build123d import Box, Pos
 
@@ -123,6 +124,25 @@ def test_named_shape_queries_and_world_bounds() -> None:
 
     with pytest.raises(ValidationError, match="unknown shape"):
         ctx.shape_world_bounds("root", "missing")
+
+
+def test_world_points_read_as_tuples_and_as_xyz() -> None:
+    """Models write `.x` as often as `[0]`; both must work, and equality with plain tuples holds."""
+    model = RigidBodyAssembly("xyz")
+    root = model.rigid_body("root")
+    add_box(root, "left", x=-1.0)
+    ctx = TestContext(model)
+
+    low, high = ctx.shape_world_bounds("root", "left")
+    assert (low.x, high.x, high.y, high.z) == (-1.5, -0.5, 0.5, 0.5)
+    assert low == (-1.5, -0.5, -0.5) and low[0] == low.x
+    assert ctx.part_world_bounds("root")[1].x == -0.5
+    assert ctx.part_world_position("root").z == 0.0
+    assert ctx.part_world_point("root", (0.0, 0.0, 1.0)).z == 1.0
+    metrics = ctx.measure_geometry("root")
+    assert metrics.dimensions.x == pytest.approx(1.0)
+    assert metrics.bounds[0].x == pytest.approx(-1.5)
+    assert metrics.centroid.x == pytest.approx(-1.0)
 
 
 def test_complete_physics_state_is_authoritative_for_geometry_queries() -> None:
@@ -500,6 +520,107 @@ def test_absurd_dimensions_and_scale_outliers_are_warnings() -> None:
     assert "extreme scale outlier" in relative_ctx.report().warnings[0]
 
 
+def _slab(part, name: str, lo: tuple[float, float, float], hi: tuple[float, float, float]) -> None:
+    center = [(a + b) / 2 for a, b in zip(lo, hi, strict=True)]
+    size = [b - a for a, b in zip(lo, hi, strict=True)]
+    part.add(Pos(X=center[0], Y=center[1], Z=center[2]) * Box(size[0], size[1], size[2]), name=name)
+
+
+def _carcass(rail_half_width: float, *, extra=()) -> RigidBodyAssembly:
+    """A 1.0 m wide carcass: 18 mm side panels whose outer faces are x = +/-0.5, inner +/-0.482."""
+    model = RigidBodyAssembly("carcass")
+    body = model.rigid_body("carcass")
+    _slab(body, "side_left", (-0.5, 0.0, 0.0), (-0.482, 0.4, 0.8))
+    _slab(body, "side_right", (0.482, 0.0, 0.0), (0.5, 0.4, 0.8))
+    # The rail stops 2 cm behind the front edge, so only its ends can meet the sides' faces.
+    _slab(body, "mid_rail", (-rail_half_width, 0.02, 0.39), (rail_half_width, 0.38, 0.41))
+    for name, lo, hi in extra:
+        _slab(body, name, lo, hi)
+    return model
+
+
+def _coplanar_warning(model: RigidBodyAssembly) -> str | None:
+    ctx = TestContext(model)
+    assert ctx.warn_if_coplanar_faces()
+    assert ctx.report().passed
+    found = [w for w in ctx.report().warnings if w.startswith("Coplanar face warning")]
+    return found[0] if found else None
+
+
+def test_a_rail_ending_at_the_panels_inner_faces_shares_no_visible_face() -> None:
+    assert _coplanar_warning(_carcass(0.482)) is None
+
+
+def test_a_rail_flush_with_a_side_panels_outer_face_is_reported() -> None:
+    warning = _coplanar_warning(_carcass(0.5))
+    assert warning is not None
+    assert (
+        "'carcass'/'side_right' and 'carcass'/'mid_rail' share 72 cm2 of visible face, largest on the plane x=+0.5000, facing +x"
+        in warning
+    )
+    assert "the plane x=-0.5000, facing -x" in warning
+
+
+@pytest.mark.parametrize("proud", [0.001, 0.005])
+def test_a_member_standing_proud_of_the_face_shares_no_plane(proud: float) -> None:
+    assert _coplanar_warning(_carcass(0.5 + proud)) is None
+
+
+def test_a_foot_flush_with_an_apron_is_reported_on_both_faces_it_shares() -> None:
+    # The corner a turntable showed pulsing: a foot block whose front and side faces sit on the apron's.
+    model = _carcass(
+        0.482,
+        extra=(
+            ("apron_front", (-0.5, 0.38, 0.0), (0.5, 0.4, 0.08)),
+            ("foot", (-0.5, 0.34, -0.06), (-0.44, 0.4, 0.04)),
+        ),
+    )
+    warning = _coplanar_warning(model)
+    assert warning is not None
+    assert "'carcass'/'apron_front' and 'carcass'/'foot'" in warning
+    assert "'carcass'/'side_left' and 'carcass'/'foot'" in warning
+
+
+def test_a_shared_face_buried_inside_another_shape_is_not_reported() -> None:
+    model = _carcass(0.5, extra=(("cladding", (-0.52, 0.01, 0.3), (0.52, 0.39, 0.5)),))
+    assert _coplanar_warning(model) is None
+
+
+def test_faces_meeting_back_to_back_are_contact_not_flicker() -> None:
+    model = RigidBodyAssembly("stack")
+    body = model.rigid_body("stack")
+    _slab(body, "lower", (0.0, 0.0, 0.0), (0.4, 0.4, 0.1))
+    _slab(body, "upper", (0.0, 0.0, 0.1), (0.4, 0.4, 0.2))
+    assert _coplanar_warning(model) is None
+
+
+def test_the_same_pair_in_several_parts_is_one_line() -> None:
+    model = RigidBodyAssembly("drawers")
+    carcass = model.rigid_body("carcass")
+    _slab(carcass, "plinth", (0.0, 0.0, -0.1), (1.0, 0.5, 0.0))
+    for index in range(3):
+        drawer = model.rigid_body(f"drawer_{index}")
+        x = index * 0.3
+        _slab(drawer, "side", (x, 0.0, 0.0), (x + 0.01, 0.4, 0.2))
+        _slab(drawer, "bottom", (x, 0.0, 0.0), (x + 0.25, 0.4, 0.01))
+        fixed(model, f"mount_{index}", carcass, drawer)
+    warning = _coplanar_warning(model)
+    assert warning is not None
+    lines = [line for line in warning.splitlines() if "'side' and" in line]
+    assert len(lines) == 1
+    assert "the same in 2 more part(s): 'drawer_1', 'drawer_2'" in lines[0]
+
+
+def test_coincident_faces_across_parts_are_reported_too() -> None:
+    model = RigidBodyAssembly("pair")
+    frame, door = model.rigid_body("frame"), model.rigid_body("door")
+    _slab(frame, "rail", (0.0, 0.0, 0.0), (0.4, 0.05, 0.05))
+    _slab(door, "panel", (0.0, 0.0, 0.0), (0.4, 0.05, 0.3))
+    fixed(model, "hinge", frame, door)
+    warning = _coplanar_warning(model)
+    assert warning is not None and "'frame'/'rail' and 'door'/'panel'" in warning
+
+
 def _swing_arm() -> RigidBodyAssembly:
     model = RigidBodyAssembly("swing_arm")
     base = model.rigid_body("base")
@@ -649,3 +770,85 @@ def test_open_mesh_buried_in_a_solid_reads_as_collision() -> None:
 
     assert context.expect_collision("outer", "inner")
     assert not context.expect_no_collision("outer", "inner")
+
+
+def test_a_shared_face_narrower_than_the_sample_grid_is_still_found() -> None:
+    # Two blocks overlapping by 1.5 mm with flush tops: a strip narrower than the 2 mm grid.
+    model = RigidBodyAssembly("strip")
+    body = model.rigid_body("strip")
+    _slab(body, "left", (0.0, 0.0, 0.0), (0.5, 0.5, 0.1))
+    _slab(body, "right", (0.4985, 0.0, 0.0), (0.9985, 0.5, 0.1))
+    warning = _coplanar_warning(model)
+    assert warning is not None
+    assert "'strip'/'left' and 'strip'/'right' share 18 cm2" in warning
+
+
+def test_one_carcass_face_flush_with_every_drawer_is_one_line() -> None:
+    model = RigidBodyAssembly("chest")
+    carcass = model.rigid_body("carcass")
+    _slab(carcass, "plinth", (0.0, 0.0, -0.1), (1.0, 0.5, 0.0))
+    for index in range(3):
+        drawer = model.rigid_body(f"drawer_{index}")
+        x = 0.05 + index * 0.3
+        _slab(drawer, "base", (x, 0.1, -0.02), (x + 0.2, 0.3, 0.0))
+        fixed(model, f"mount_{index}", carcass, drawer)
+    warning = _coplanar_warning(model)
+    assert warning is not None
+    lines = [line for line in warning.splitlines() if "'plinth'" in line]
+    assert len(lines) == 1
+    assert "share 400 cm2" in lines[0]
+    assert "the same in 2 more part(s)" in lines[0]
+
+
+def _box_mesh(lo, hi, *, inverted: bool = False):
+    import trimesh
+
+    mesh = trimesh.creation.box(
+        extents=[b - a for a, b in zip(lo, hi, strict=True)],
+        transform=trimesh.transformations.translation_matrix(
+            [(a + b) / 2 for a, b in zip(lo, hi, strict=True)]
+        ),
+    )
+    faces = mesh.faces[:, ::-1] if inverted else mesh.faces
+    return np.asarray(mesh.vertices), np.asarray(faces)
+
+
+@pytest.mark.parametrize("inverted", ["a", "c"])
+def test_a_mesh_wound_inside_out_neither_hides_nor_invents_a_shared_face(inverted: str) -> None:
+    from articraft.sdk._coplanar import coplanar_faces
+
+    # a and b share their top plane; c covers both, its bottom back-to-back with their tops.
+    meshes = [
+        ("a", *_box_mesh((0.0, 0.0, 0.0), (0.1, 0.1, 0.1), inverted=inverted == "a")),
+        ("b", *_box_mesh((0.05, 0.0, 0.0), (0.2, 0.1, 0.1))),
+        ("c", *_box_mesh((-0.05, -0.05, 0.1), (0.25, 0.15, 0.12), inverted=inverted == "c")),
+    ]
+    top = [f for f in coplanar_faces(meshes) if f.normal[2] > 0.9 and abs(f.offset - 0.1) < 1e-6]
+    assert top == []
+
+
+def test_a_cover_thinner_than_half_a_millimetre_still_hides_the_faces_under_it() -> None:
+    from articraft.sdk._coplanar import coplanar_faces
+
+    meshes = [
+        ("a", *_box_mesh((0.0, 0.0, 0.0), (0.1, 0.1, 0.1))),
+        ("b", *_box_mesh((0.05, 0.0, 0.0), (0.2, 0.1, 0.1))),
+        ("sheet", *_box_mesh((-0.01, -0.01, 0.1), (0.21, 0.11, 0.1004))),
+    ]
+    assert [f for f in coplanar_faces(meshes) if f.normal[2] > 0.9] == []
+
+
+def test_distance_between_reads_its_nearest_points_by_name() -> None:
+    model = RigidBodyAssembly("pair")
+    base = model.rigid_body("base")
+    base.add(Box(0.2, 0.2, 0.1), name="body")
+    lid = model.rigid_body("lid")
+    lid.add(Pos(0.0, 0.0, 0.2) * Box(0.2, 0.2, 0.02), name="body")
+    model.joint("lid_fixed", base.at(), lid.at())
+
+    finding = TestContext(model).distance_between("base", "lid")
+
+    assert finding.nearest_a is not None and finding.nearest_b is not None
+    # DistanceFinding is typed with plain Vec3 points; at run time they are XYZ.
+    gap = finding.nearest_b.z - finding.nearest_a.z  # pyright: ignore[reportAttributeAccessIssue]
+    assert gap == pytest.approx(finding.distance, abs=1e-6)

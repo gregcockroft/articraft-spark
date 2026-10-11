@@ -61,6 +61,17 @@ class OpenRouterModel:
         """Return the configured window because OpenRouter has no local model catalog."""
         return self.config.openrouter_context_window_tokens
 
+    @property
+    def response_reserve_tokens(self) -> int:
+        """The most one turn can add to the window beyond its prompt.
+
+        The reply cap counts against the window on a self-hosted server, and a turn that hits
+        the thinking budget is resent with its reasoning as a prefix of the prompt.
+        """
+        return (
+            self.config.openrouter_max_output_tokens + self.config.openrouter_thinking_budget_tokens
+        )
+
     async def query(
         self,
         messages: list[dict[str, Any]],
@@ -152,10 +163,13 @@ class OpenRouterModel:
             "reasoning": prefix,
             "thinking_budget_tokens": budget,
         }
+        usage = _response_token_usage(payload)
         return {
             "text": text,
             "tool_calls": tool_calls,
-            "token_usage": _add_usage(turn.token_usage(), _response_token_usage(payload)),
+            "token_usage": _add_usage(turn.token_usage(), usage),
+            # The usage bills both requests; the window this turn used is the resent one's.
+            "context_tokens": usage.get("total_tokens", 0),
             "cost": _response_cost(payload),
             "provider_content": [reasoning_item, *provider_content],
             "response": payload,

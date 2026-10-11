@@ -4,7 +4,7 @@ from functools import cache
 from pathlib import Path
 from typing import Literal
 
-from pydantic import Field, field_validator
+from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEFAULT_OUTPUT_DIR = Path("runs")
@@ -167,6 +167,19 @@ class Settings(BaseSettings):
                 "ARTICRAFT_OPENROUTER_CONTEXT_WINDOW_TOKENS must be 0 (disabled) or at least 36384"
             )
         return value
+
+    @model_validator(mode="after")
+    def _openrouter_window_holds_a_reply(self) -> Settings:
+        """The reply cap and the thinking budget are reserved from the window too (compaction)."""
+        window = self.openrouter_context_window_tokens
+        reply = self.openrouter_max_output_tokens + self.openrouter_thinking_budget_tokens
+        if window and window < 36_384 + reply:
+            raise ValueError(
+                f"ARTICRAFT_OPENROUTER_CONTEXT_WINDOW_TOKENS={window} leaves no room for the "
+                f"{reply}-token reply reserve (max output + thinking budget); it must be at least "
+                f"{36_384 + reply}"
+            )
+        return self
 
     openrouter_http_referer: str | None = Field(
         default=None,

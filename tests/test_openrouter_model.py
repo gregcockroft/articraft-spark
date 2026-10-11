@@ -492,7 +492,10 @@ def test_openrouter_model_reports_compaction_failure_and_keeps_history(tmp_path:
 
     result = run(agent.run("a box", run_id="openrouter-compact-fail"))
 
-    assert result["status"] == "error"
+    # The turn-2 compile was clean, so the failure keeps it and still names the error.
+    assert result["status"] == "success"
+    assert result["terminate_reason"] == "error_last_clean"
+    assert result["result"].endswith(".usdz")
     assert result["error"].startswith("context compaction failed")
     assert "no free capacity" in result["error"]
     assert len(requests) == 3

@@ -88,7 +88,8 @@ housing.add(
 Shapes in one body can overlap. Overlap a protrusion with its supporting surface to keep the
 body connected.
 
-Use `body.shape(name)` to get a shape. Use `model.get_rigid_body(body_or_name)` to get a body.
+Use `body.shape(name)` to get a shape, and `body.shapes` for every name and shape on the body (a
+read-only mapping). Use `model.get_rigid_body(body_or_name)` to get a body.
 
 ## Geometry frames
 

@@ -48,12 +48,19 @@ class Compaction:
 def prepare_compaction(
     messages: list[dict[str, Any]],
     context_window_tokens: int,
+    *,
+    response_tokens: int = 0,
 ) -> Compaction | None:
+    """Plan a compaction once the next request might not fit the window.
+
+    A server counts the reply it may write against the window, so ``response_tokens`` --
+    the most one turn can add beyond its prompt -- is reserved on top of RESERVE_TOKENS.
+    """
     if len(messages) <= STATIC_MESSAGE_COUNT or context_window_tokens <= 0:
         return None
 
     tokens_before = _context_tokens(messages)
-    if tokens_before <= context_window_tokens - RESERVE_TOKENS:
+    if tokens_before <= context_window_tokens - RESERVE_TOKENS - max(response_tokens, 0):
         return None
 
     cut = _recent_cut(messages)
@@ -97,11 +104,14 @@ def prepare_compaction(
 
 def _context_tokens(messages: list[dict[str, Any]]) -> int:
     for index in range(len(messages) - 1, -1, -1):
-        usage = messages[index].get("token_usage")
-        if messages[index].get("role") != "assistant" or not isinstance(usage, dict):
+        message = messages[index]
+        usage = message.get("token_usage")
+        if message.get("role") != "assistant" or not isinstance(usage, dict):
             continue
+        # A turn made of two requests bills both, so its usage is not the window it used;
+        # the provider then says what the last request used as context_tokens.
         try:
-            total = int(usage.get("total_tokens") or 0)
+            total = int(message.get("context_tokens") or usage.get("total_tokens") or 0)
         except (TypeError, ValueError):
             total = 0
         if total > 0:
@@ -143,6 +153,14 @@ def _recent_cut(messages: list[dict[str, Any]]) -> int:
 
 def _message_tokens(message: dict[str, Any]) -> int:
     chars = _content_chars(message.get("content")) + _content_chars(message.get("output"))
+    # Reasoning a provider sends back with the assistant message is part of the prompt too.
+    for item in message.get("provider_content") or []:
+        if isinstance(item, dict):
+            chars += sum(
+                len(value)
+                for key in ("reasoning", "thinking")
+                if isinstance(value := item.get(key), str)
+            )
     for call in message.get("tool_calls") or []:
         if isinstance(call, dict):
             chars += len(str(call.get("name") or ""))

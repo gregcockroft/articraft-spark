@@ -51,12 +51,12 @@ for dir in spark/results/*/; do
     continue
   fi
 
-  for check in score handles; do
+  for check in score handles flicker; do
     [ -f "$dir/$check.txt" ] || { echo "   $check    no $check.txt  (not checked)"; note=$((note + 1)); continue; }
     if [ "$check" = score ]; then
       got=$("$PY" spark/score.py "$usdz" --ask spark/bench/dresser/ask.json 2>&1)
     else
-      got=$("$PY" spark/handles.py "$usdz" 2>&1)
+      got=$("$PY" "spark/$check.py" "$usdz" 2>&1)
     fi
     if diff -q <(printf '%s\n' "$got" | strip_provenance) <(strip_provenance < "$dir/$check.txt") >/dev/null; then
       echo "   $check    re-run reproduces $check.txt  OK"

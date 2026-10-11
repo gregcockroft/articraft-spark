@@ -224,8 +224,9 @@ class RunRenderer:
         if event.token_usage.get("total_tokens"):
             parts.append(f"tokens {_format_tokens(event.token_usage['total_tokens'])}")
         line = Text(" · ".join(parts), style="bold green" if ok else "bold red")
-        if not ok and event.error:
-            line.append("\n  " + _clip(event.error, 200), style="red")
+        if event.error:
+            # A salvaged run succeeds with the error that ended it still recorded.
+            line.append("\n  " + _clip(event.error, 200), style="red" if not ok else "yellow")
         return line
 
     # ---------------------------------------------------------------- replay --

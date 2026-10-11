@@ -4,10 +4,10 @@ import math
 import statistics
 from collections.abc import Callable, Iterator, Mapping, Sequence
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from enum import StrEnum
 from pathlib import Path
-from typing import ClassVar, cast
+from typing import ClassVar, NamedTuple, cast
 
 import igl
 import numpy as np
@@ -19,9 +19,9 @@ from articraft.sdk._collision import (
     DistanceFinding,
     GeometryConnectivityFinding,
     MeshCollisionKernel,
-    Vec3,
     _pair_key,
 )
+from articraft.sdk._coplanar import CoplanarFaces, coplanar_faces
 from articraft.sdk._mesh.core import geometry_to_trimesh
 from articraft.sdk._mesh.health import MeshHealthIssue, analyze_mesh_health
 from articraft.sdk._values import _as_vec3 as _vec3
@@ -40,6 +40,23 @@ from articraft.sdk.errors import LoopClosureError, ValidationError
 from articraft.sdk.frames import BodyFrame
 from articraft.sdk.mass import resolve_mass
 from articraft.sdk.materials import LIBRARY
+
+
+class XYZ(NamedTuple):
+    """A world point or size: a plain 3-tuple that also reads as ``.x``, ``.y``, ``.z``."""
+
+    x: float
+    y: float
+    z: float
+
+
+def _xyz(values: Sequence[float] | np.ndarray) -> XYZ:
+    return XYZ(float(values[0]), float(values[1]), float(values[2]))
+
+
+def _xyz_bounds(bounds: Bounds) -> tuple[XYZ, XYZ]:
+    return (_xyz(bounds[0]), _xyz(bounds[1]))
+
 
 DEFAULT_MESH_TOLERANCE = 0.001
 DEFAULT_CONTACT_TOLERANCE = 1e-6
@@ -118,9 +135,9 @@ class TestArtifact:
 
 @dataclass(frozen=True)
 class GeometryMetrics:
-    bounds: Bounds
-    dimensions: Vec3
-    centroid: Vec3
+    bounds: tuple[XYZ, XYZ]
+    dimensions: XYZ
+    centroid: XYZ
     triangle_count: int
     component_count: int
     watertight: bool
@@ -216,7 +233,6 @@ class TestContext:
         self,
         name: str,
         value: float,
-        *,
         unit: str = "",
         details: str = "",
     ) -> TestMetric:
@@ -233,7 +249,6 @@ class TestContext:
         self,
         name: str,
         value: float,
-        *,
         minimum: float | None = None,
         maximum: float | None = None,
         unit: str = "",
@@ -435,29 +450,33 @@ class TestContext:
                 "the tree joints that move its parts instead"
             )
 
-    def part_world_position(self, part: RigidBodyRef) -> Vec3:
-        return self._kernel().part_world_position(
-            _part_name(part, field_name="part"), self._placement()
+    def part_world_position(self, part: RigidBodyRef) -> XYZ:
+        return _xyz(
+            self._kernel().part_world_position(
+                _part_name(part, field_name="part"), self._placement()
+            )
         )
 
-    def part_world_bounds(self, part: RigidBodyRef) -> Bounds:
-        return self._kernel().part_world_bounds(
-            _part_name(part, field_name="part"), self._placement()
+    def part_world_bounds(self, part: RigidBodyRef) -> tuple[XYZ, XYZ]:
+        return _xyz_bounds(
+            self._kernel().part_world_bounds(_part_name(part, field_name="part"), self._placement())
         )
 
-    def shape_world_bounds(self, part: RigidBodyRef, shape: str) -> Bounds:
-        return self._kernel().shape_world_bounds(
-            _part_name(part, field_name="part"), shape, self._placement()
+    def shape_world_bounds(self, part: RigidBodyRef, shape: str) -> tuple[XYZ, XYZ]:
+        return _xyz_bounds(
+            self._kernel().shape_world_bounds(
+                _part_name(part, field_name="part"), shape, self._placement()
+            )
         )
 
-    def part_world_point(self, part: RigidBodyRef, point: Sequence[float]) -> Vec3:
+    def part_world_point(self, part: RigidBodyRef, point: Sequence[float]) -> XYZ:
         part_name = _part_name(part, field_name="part")
         local = np.asarray(_vec3(point, "point"), dtype=np.float64)
         transform = self._kernel().world_transforms(self._placement()).get(part_name)
         if transform is None:
             raise ValidationError(f"unknown part: {part_name!r}")
         world = transform @ np.asarray([*local, 1.0], dtype=np.float64)
-        return (float(world[0]), float(world[1]), float(world[2]))
+        return _xyz(world)
 
     def expect_coincident(
         self,
@@ -547,12 +566,9 @@ class TestContext:
         else:
             orientation = "degenerate"
         return GeometryMetrics(
-            bounds=(
-                tuple(float(value) for value in bounds_array[0]),
-                tuple(float(value) for value in bounds_array[1]),
-            ),  # type: ignore[arg-type]
-            dimensions=tuple(float(value) for value in dimensions),  # type: ignore[arg-type]
-            centroid=tuple(float(value) for value in combined.centroid),  # type: ignore[arg-type]
+            bounds=(_xyz(bounds_array[0]), _xyz(bounds_array[1])),
+            dimensions=_xyz(dimensions),
+            centroid=_xyz(combined.centroid),
             triangle_count=sum(len(mesh.faces) for mesh in meshes),
             component_count=components,
             watertight=watertight,
@@ -630,8 +646,8 @@ class TestContext:
         part: RigidBodyRef,
         point: Sequence[float],
         poses: Sequence[PoseSample | Mapping[object, float]],
-    ) -> tuple[Vec3, ...]:
-        tracked: list[Vec3] = []
+    ) -> tuple[XYZ, ...]:
+        tracked: list[XYZ] = []
         for pose in _pose_dicts(poses):
             with self.pose(pose):
                 tracked.append(self.part_world_point(part, point))
@@ -816,7 +832,12 @@ class TestContext:
         shape_a: str | None = None,
         shape_b: str | None = None,
     ) -> DistanceFinding:
-        return self._distance_query(part_a, part_b, shape_a=shape_a, shape_b=shape_b)
+        finding = self._distance_query(part_a, part_b, shape_a=shape_a, shape_b=shape_b)
+        return replace(
+            finding,
+            nearest_a=None if finding.nearest_a is None else _xyz(finding.nearest_a),
+            nearest_b=None if finding.nearest_b is None else _xyz(finding.nearest_b),
+        )
 
     def _check_poses(
         self,
@@ -1443,6 +1464,59 @@ class TestContext:
             self.warn("Scale warning:\n" + "\n".join(warnings[:10]))
         return self._record(check_name, True)
 
+    def warn_if_coplanar_faces(
+        self,
+        *,
+        min_area: float = 1e-4,
+        max_listed: int = 12,
+        name: str | None = None,
+    ) -> bool:
+        """Warn when two shapes have a visible face on the same plane, facing the same way.
+
+        A renderer cannot order coincident faces, so the shared area flickers as the camera moves
+        (z-fighting): a rail built to a carcass's outer width shows as a stripe across the side, a foot
+        flush with an apron pulses at the corner. Inside one part that is ordinary overlap and no
+        collision check sees it. Every pair of shapes in the current pose is checked, within a part and
+        across parts; a shared area is reported only where it is visible (not buried inside a shape) and
+        at least ``min_area`` in all.
+        """
+        min_area = _non_negative(min_area, "min_area")
+        check_name = name or "warn_if_coplanar_faces()"
+        transforms = self._kernel().world_transforms(self._placement())
+        meshes = []
+        for part in self.model.rigid_bodies:
+            transform = transforms.get(part.name)
+            if transform is None:
+                continue
+            for shape in part._iter_shapes():
+                mesh = geometry_to_trimesh(shape.geometry, self.mesh_tolerance).copy()
+                mesh.apply_transform(transform)
+                meshes.append(
+                    (
+                        f"{part.name!r}/{shape.name!r}",
+                        np.asarray(mesh.vertices),
+                        np.asarray(mesh.faces),
+                    )
+                )
+        lines = [
+            f"{pair} share {area * 1e4:.0f} cm2 of visible face, largest on "
+            f"{_plane_text(largest.normal, largest.offset)}{same}"
+            for pair, area, largest, same in _coplanar_lines(
+                coplanar_faces(meshes, min_area=0.0), min_area
+            )
+        ]
+        if lines:
+            listed = lines[:max_listed]
+            if len(lines) > max_listed:
+                listed.append(f"... and {len(lines) - max_listed} more")
+            self.warn(
+                "Coplanar face warning:\n"
+                + "\n".join(listed)
+                + "\nA renderer flickers between coincident faces. Move one face of each pair at least "
+                "1 mm off the shared plane: inset it, or let the other shape cover it."
+            )
+        return self._record(check_name, True)
+
     def fail_if_parts_overlap_in_current_pose(
         self,
         *,
@@ -1808,6 +1882,67 @@ def _axis_names(axes: str | Sequence[str]) -> tuple[str, ...]:
     if not normalized:
         raise ValidationError("axes must include at least one axis")
     return normalized
+
+
+def _coplanar_lines(
+    found: Sequence[CoplanarFaces], min_area: float
+) -> list[tuple[str, float, CoplanarFaces, str]]:
+    """One line per mistake: (pair text, area, largest plane, "the same in N more part(s)" text).
+
+    Labels are "'part'/'shape'". Faces of one shape pair are summed. A pair repeated across parts
+    is one mistake in the code that builds those parts, so it folds: inside one part by the two
+    shape names (the same two shapes in every drawer), and across parts by the side that repeats
+    in the most pairs (one carcass side, flush with the front of every drawer) and the shape name
+    on the other.
+    """
+
+    by_pair: dict[tuple[str, str], list[CoplanarFaces]] = {}
+    for item in found:
+        by_pair.setdefault((item.shape_a, item.shape_b), []).append(item)
+    pairs = {
+        labels: (sum(face.visible_area for face in shared), shared)
+        for labels, shared in by_pair.items()
+    }
+    pairs = {labels: value for labels, value in pairs.items() if value[0] >= min_area}
+    seen: dict[str, int] = {}
+    for label_a, label_b in pairs:
+        seen[label_a] = seen.get(label_a, 0) + 1
+        seen[label_b] = seen.get(label_b, 0) + 1
+    groups: dict[tuple[str, ...], list[tuple[str, str, float, CoplanarFaces]]] = {}
+    for (label_a, label_b), (area, shared) in pairs.items():
+        part_a, shape_a = label_a.split("/", 1)
+        part_b, shape_b = label_b.split("/", 1)
+        largest = max(shared, key=lambda face: face.visible_area)
+        if part_a == part_b:
+            key: tuple[str, ...] = ("within", shape_a, shape_b)
+            varying = part_a
+        elif seen[label_b] > seen[label_a]:
+            key, varying = ("across", label_b, shape_a), part_a
+        else:
+            key, varying = ("across", label_a, shape_b), part_b
+        groups.setdefault(key, []).append((varying, f"{label_a} and {label_b}", area, largest))
+    lines = []
+    for cases in sorted(groups.values(), key=lambda cases: -max(case[2] for case in cases)):
+        _part, pair, area, largest = max(cases, key=lambda case: case[2])
+        others = sorted(case[0] for case in cases if case[1] != pair)
+        same = (
+            f"; the same in {len(others)} more part(s): {', '.join(others[:4])}"
+            + (", ..." if len(others) > 4 else "")
+            if others
+            else ""
+        )
+        lines.append((pair, area, largest, same))
+    return lines
+
+
+def _plane_text(normal: Sequence[float], offset: float) -> str:
+    axis = max(range(3), key=lambda index: abs(normal[index]))
+    if abs(normal[axis]) > 0.9995:
+        sign = "+" if normal[axis] > 0 else "-"
+        coordinate = offset if normal[axis] > 0 else -offset
+        return f"the plane {'xyz'[axis]}={coordinate:+.4f}, facing {sign}{'xyz'[axis]}"
+    n = ", ".join(f"{value:+.3f}" for value in normal)
+    return f"the plane through n=({n}) at {offset:+.4f}"
 
 
 def _axis_index(axis: str) -> int:

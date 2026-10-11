@@ -132,3 +132,61 @@ def test_repeated_compaction_updates_checkpoint_and_paths() -> None:
     assert "<compaction-checkpoint>" not in summary_input
     assert second.modified_files == ["main.py", "previews.py"]
     assert second.inspected_images == ["preview.png"]
+
+
+def test_the_reply_the_server_may_write_is_reserved_from_the_window() -> None:
+    """A 229k prompt with a 32k reply cap overflowed a 262k window before compaction fired."""
+    window, reply = 262_144, 32_768
+    threshold = window - RESERVE_TOKENS - reply
+    assert prepare_compaction(_history(threshold), window, response_tokens=reply) is None
+    assert prepare_compaction(_history(threshold + 1), window, response_tokens=reply) is not None
+    # Without the reserve the same history would not compact, which is how the run died.
+    assert prepare_compaction(_history(229_377), window) is None
+    assert prepare_compaction(_history(229_377), window, response_tokens=reply) is not None
+
+
+def test_reasoning_sent_back_with_assistant_turns_counts_toward_the_recent_messages_kept() -> None:
+    """The kept tail is measured by estimate; reasoning the provider resends is part of it.
+
+    A recorded run kept 80k estimated (about 110k real) tokens of "recent" messages because its
+    reasoning was not counted, so a compaction at 118k left 116k.
+    """
+    messages = _history(250_000)
+    for index in range(6):
+        messages.append({"type": "function_call_output", "call_id": f"c{index}", "output": "ok"})
+        messages.append(
+            {
+                "role": "assistant",
+                "content": "short",
+                "tool_calls": [],
+                "provider_content": [
+                    {"type": "openrouter_reasoning", "reasoning": "r" * (12_000 * 4)}
+                ],
+                "token_usage": {"total_tokens": 250_000},
+            }
+        )
+    plan = prepare_compaction(messages, 262_144)
+    assert plan is not None
+    # Two reasoning turns already pass KEEP_RECENT_TOKENS; without counting them all six were kept.
+    kept = [m for m in plan.recent_messages if m.get("role") == "assistant"]
+    assert len(kept) == 2
+
+
+def test_text_a_provider_keeps_beside_the_content_is_not_counted_twice() -> None:
+    message = {
+        "role": "assistant",
+        "content": "x" * 4_000,
+        "provider_content": [{"type": "text", "text": "x" * 4_000}],
+    }
+    from articraft.agent.compaction import _message_tokens
+
+    assert _message_tokens(message) == 1_000
+
+
+def test_a_turn_that_names_its_context_is_measured_by_it_not_by_its_billed_total() -> None:
+    """A thinking-budget turn bills two requests; its usage nearly doubles the real window."""
+    messages = _history(250_000)
+    assert prepare_compaction(messages, 262_144) is not None
+
+    messages[-1]["context_tokens"] = 125_000
+    assert prepare_compaction(messages, 262_144) is None

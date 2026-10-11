@@ -30,6 +30,9 @@ MAX_CONSECUTIVE_EMPTY_RESPONSES = 3
 # AgentConfig.compile_gate_turns; 0 turns the gate off, and 0 is the default.
 COMPILE_GATE_TURNS = DEFAULT_COMPILE_GATE_TURNS
 MUTATING_TOOL_NAMES = frozenset({"edit", "write"})
+# A run that edits on past its last compile can reach the turn limit with nothing recorded. When
+# this many turns remain and the latest workspace has not compiled clean, say so, once each.
+TURN_BUDGET_REMINDERS = (20, 10)
 LOGGER = logging.getLogger(__name__)
 
 
@@ -194,6 +197,7 @@ class Agent:
             getattr(model_config, "openai_reasoning_effort", ""),
         )
         context_window_tokens = int(getattr(self.model, "context_window_tokens", 0) or 0)
+        response_tokens = int(getattr(self.model, "response_reserve_tokens", 0) or 0)
         self._emit(
             events.RunStarted(
                 run_id,
@@ -213,11 +217,14 @@ class Agent:
         termination_error = ""
         consecutive_empty_responses = 0
         edit_turns_without_compile = 0
+        budget_reminders_sent: set[int] = set()
         for turn in range(1, self.config.max_turns + 1):
             self._emit(events.TurnStarted(turn))
             summarizer = self.model if isinstance(self.model, ContextSummarizer) else None
             plan = (
-                prepare_compaction(self.messages, context_window_tokens)
+                prepare_compaction(
+                    self.messages, context_window_tokens, response_tokens=response_tokens
+                )
                 if summarizer is not None
                 else None
             )
@@ -264,6 +271,9 @@ class Agent:
             provider_content = response.get("provider_content")
             if isinstance(provider_content, list):
                 assistant["provider_content"] = provider_content
+            context_tokens = response.get("context_tokens")
+            if isinstance(context_tokens, int) and context_tokens > 0:
+                assistant["context_tokens"] = context_tokens
             self.messages.append(assistant)
             append_conversation(conversation_path, assistant)
             self._emit(events.AssistantMessage(turn, text, tool_calls, response_usage))
@@ -318,16 +328,41 @@ class Agent:
                 _append_reminder(
                     self.messages, conversation_path, _compile_gate_reminder(gate_turns)
                 )
+            remaining = self.config.max_turns - turn
+            budget_due = {
+                limit
+                for limit in TURN_BUDGET_REMINDERS
+                if remaining <= limit < self.config.max_turns
+            } - budget_reminders_sent
+            # Held while an exec session runs: compile cannot be called until it exits.
+            if (
+                budget_due
+                and remaining
+                and not context.exec_sessions.live_ids()
+                and not _latest_workspace_is_compiled(context)
+            ):
+                budget_reminders_sent |= budget_due
+                _append_reminder(
+                    self.messages, conversation_path, _turn_budget_reminder(context, remaining)
+                )
         else:
             hit_max_turns = True
 
         workspace_is_compiled = _latest_workspace_is_compiled(context)
         record = Record.load(record_path)
         if termination_error:
-            record.status = "error"
+            # The same salvage as the turn limit: a model or compaction failure late in a run
+            # must not discard a revision that already compiled clean. The error stays recorded.
+            salvaged = _last_clean_result(run_dir, context)
             record.error = termination_error
-            record.result = ""
-            record.terminate_reason = "error"
+            if salvaged:
+                record.status = "success"
+                record.result = salvaged
+                record.terminate_reason = "error_last_clean"
+            else:
+                record.status = "error"
+                record.result = ""
+                record.terminate_reason = "error"
         elif hit_max_turns:
             # C2: a run that compiled clean and then wandered still built something.
             # Returning the last revision that compiled clean keeps the evidence
@@ -370,8 +405,12 @@ class Agent:
         data = record.to_dict()
         data["message"] = final_text
         data["run"] = str(run_dir)
+        # A salvaged run's object is the last clean compile, so its report is that compile's too.
+        salvaged_run = record.terminate_reason.endswith("_last_clean")
         compile_result = (
-            context.successful_compile_result if workspace_is_compiled else context.compile_result
+            context.successful_compile_result
+            if workspace_is_compiled or salvaged_run
+            else context.compile_result
         )
         compile_report = compile_result.get("compile_report") if compile_result else None
         if isinstance(compile_report, dict):
@@ -617,6 +656,23 @@ def _compile_gate_reminder(turns: int) -> str:
         f"The last {turns} turns changed the workspace and none of them ran `compile`.\n"
         "Run `compile` now to check the current script before editing further.\n"
         "</compile_required>"
+    )
+
+
+def _turn_budget_reminder(context: ToolContext, remaining: int) -> str:
+    if _has_successful_compile(context):
+        state = "The workspace has changed since the last successful compile."
+        outcome = "If the turns run out, the run keeps only that last clean compile."
+    else:
+        state = "No successful compile has completed yet."
+        outcome = "If the turns run out before a clean compile, the run records nothing."
+    return (
+        "<turn_budget>\n"
+        f"{remaining} turns remain in this run. {state}\n"
+        f"{outcome}\n"
+        "Run `compile` now, repair what it reports, and finish with a visible final response "
+        "before the turns run out.\n"
+        "</turn_budget>"
     )
 
 

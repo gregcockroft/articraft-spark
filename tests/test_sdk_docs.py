@@ -456,7 +456,8 @@ def test_prompt_requires_agent_driven_visual_review() -> None:
     for required in [
         "Write `previews.py`",
         '"$ARTICRAFT_PYTHON" previews.py',
-        "before the first compile",
+        "run `compile` on it before anything else",
+        "after the first compile",
         "Calling the renderer is not visual inspection",
         "silhouette, proportions, part transitions, repeated features",
         "Every validation brief must include at least one overall model view",
@@ -465,6 +466,8 @@ def test_prompt_requires_agent_driven_visual_review() -> None:
         "Run `compile` after an actual file change",
     ]:
         assert required.lower() in normalized.lower()
+    # Previews before the first compile kept recorded Flash-Next draws from compiling until turn 95-99.
+    assert "before the first compile" not in normalized.lower()
 
     for required in [
         "from main import object_model",

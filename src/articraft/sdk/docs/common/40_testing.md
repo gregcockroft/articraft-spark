@@ -347,6 +347,9 @@ into the current world pose.
 
 These methods read the current pose and do not record a check.
 
+Every `Vec3` they return is a plain 3-tuple that also reads as `.x`, `.y`, and `.z`, so both
+`bounds[1][0]` and `bounds[1].x` work. Bounds are `(minimum, maximum)`.
+
 ### `part_world_position(part) -> Vec3`
 
 Returns the part origin in world coordinates. This is the articulation frame position, not the
