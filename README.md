@@ -3,14 +3,16 @@
 **A reference photo in, an articulated 3D asset out, on one NVIDIA DGX Spark with an open-weight
 model. No API key and no cloud once the weights are downloaded.**
 
-## Latest — 2026-09-22: `clone_and_demo.sh`, run from an empty folder
+## Latest — 2026-10-11: `clone_and_demo.sh`, run from an empty folder
 
 **One command, a fresh clone of this repo's `main`, and the weights already on the box:**
 [`spark/clone_and_demo.sh`](spark/clone_and_demo.sh) was fetched from GitHub and run as
 `./clone_and_demo.sh qwen3.8-flash-next-nvfp4 ~/.cache/huggingface` (the `demo` prompt). `spark/cache.sh`
 found the 135.3 GB of weights and the server image already present — **nothing to fetch: 0 bytes** — and
-the server started offline. **It passed**: 58 turns in 155 minutes, ended on its own final response, then
-scored and rendered this turntable itself.
+the server started offline. **It passed**: 50 turns in 143 minutes, ended on its own final response, then
+scored and rendered this turntable itself. Its second compile, at turn 27, warned of nine pairs of faces
+lying on the same plane (185 cm², the kind a renderer flickers between); the model moved them, compiled
+clean at turns 33 and 48, and [`spark/flicker.py`](spark/flicker.py) finds none in the result.
 
 ![The dresser built by Qwen3.8-Flash-Next from a fresh clone_and_demo.sh run, turning while its nine drawers slide open one after another](spark/results/dresser_clone_and_demo.gif)
 
